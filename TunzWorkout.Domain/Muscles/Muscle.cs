@@ -1,0 +1,13 @@
+﻿
+
+
+namespace TunzWorkout.Domain.Muscles
+{
+    public class Muscle
+    {
+        public required Guid Id { get; set; }
+        public required string Name { get; set; }
+        public required Guid ImageId { get; set; }
+
+    }
+}

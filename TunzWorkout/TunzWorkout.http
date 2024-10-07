@@ -1,0 +1,6 @@
+@TunzWorkout_HostAddress = http://localhost:5043
+
+GET {{TunzWorkout_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
