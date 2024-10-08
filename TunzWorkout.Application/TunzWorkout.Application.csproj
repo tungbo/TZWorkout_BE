@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TunzWorkout.Domain\TunzWorkout.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

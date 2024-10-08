@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TunzWorkout.Application\TunzWorkout.Application.csproj" />
     <ProjectReference Include="..\TunzWorkout.Domain\TunzWorkout.Domain.csproj" />
   </ItemGroup>
 
