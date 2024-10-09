@@ -2,6 +2,7 @@
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dto.Muscles;
 using TunzWorkout.Application.Common.Interfaces;
+using TunzWorkout.Application.Common.Services.Muscles;
 using TunzWorkout.Domain.Entities.Muscles;
 
 namespace TunzWorkout.Api.Controllers
@@ -10,39 +11,40 @@ namespace TunzWorkout.Api.Controllers
     [ApiController]
     public class MusclesController : ControllerBase
     {
-        private readonly IMuscleRepository _muscleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        public MusclesController(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork)
+        private readonly IMuscleService _muscleService;
+        public MusclesController(IMuscleService muscleService)
         {
-            _muscleRepository = muscleRepository;
-            _unitOfWork = unitOfWork;
+            _muscleService = muscleService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMuscle(MuscleDTO muscleDTO)
+        public async Task<IActionResult> CreateMuscle(CreateMuscleRequest request)
         {
-            if (muscleDTO is null)
+            if (request is null)
             {
-                return Problem(detail: "Muscle is null", statusCode: 400, title: "Error");
+                //return Problem(detail: "Muscle is null", statusCode: 300, title: "Error");
+                return BadRequest("Invalid request: Muscle data is required.");
             }
-            var muscle = muscleDTO.MapToMuscle();
-            await _muscleRepository.CreateAsync(muscle);
-            await _unitOfWork.CommitChangesAsync();
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var muscle = request.MapToMuscle();
+            await _muscleService.CreateAsync(muscle);
+            var response = muscle.MapToResponse();
 
-            var response = muscle.MapToMuscleDTO();
-
-            return Ok(response);
+            return CreatedAtAction(nameof(CreateMuscle), new {id = muscle.Id}, response);
         }
 
 
         [HttpGet]
         public async Task<IActionResult> GetAllMuscles()
         {
-            var muscles = await _muscleRepository.GetAllAsync();
+            var muscles = await _muscleService.GetAllAsync();
 
-            var response = new List<MuscleDTO>();
+            var response = new List<MuscleResponse>();
 
-            foreach(var muscle in muscles)
+            foreach (var muscle in muscles)
             {
                 response.Add(muscle.MapToResponse());
             }
@@ -50,13 +52,24 @@ namespace TunzWorkout.Api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetMuscleById(Guid id)
+        {
+            var muscle = await _muscleService.MuscleByIdAsync(id);
+            if(muscle is null)
+            {
+                return NotFound();
+            }
+            var response = muscle.MapToResponse();
+            return Ok(response);
+        }
+
         [HttpPut]
         public async Task<IActionResult> UpdateMuscles(MuscleDTO muscleDTO, Guid id)
         {
             var muscles = muscleDTO.MapToMuscle(id);
-            
-            await _muscleRepository.UpdateAsync(muscles);
-            await _unitOfWork.CommitChangesAsync();
+
+            await _muscleService.UpdateAsync(muscles);
 
             var response = muscles.MapToResponse();
             return Ok(response);
@@ -65,14 +78,11 @@ namespace TunzWorkout.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> RemoveMuscles(Guid id)
         {
-            if(!await _muscleRepository.ExistByIdAsync(id))
+            var deleted = await _muscleService.DeleteByIdAsync(id);
+            if(!deleted)
             {
-                return Problem(detail: "Not Found", statusCode: 400, title: "Error");
+                return NotFound();
             }
-
-            await _muscleRepository.DeleteByIdAsync(id);
-            await _unitOfWork.CommitChangesAsync();
-
             return Ok();
         }
     }
