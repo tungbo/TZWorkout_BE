@@ -11,5 +11,6 @@ namespace TunzWorkout.Domain.Entities.Images
 
         public Muscle Muscle { get; set; }
         public Equipment Equipment { get; set; }
+
     }
 }

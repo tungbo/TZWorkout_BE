@@ -1,4 +1,5 @@
 ﻿using TunzWorkout.Application.Common.Interfaces;
+using TunzWorkout.Application.Common.Services.Files;
 using TunzWorkout.Domain.Entities.Muscles;
 
 namespace TunzWorkout.Application.Common.Services.Muscles
@@ -6,18 +7,23 @@ namespace TunzWorkout.Application.Common.Services.Muscles
     public class MuscleService : IMuscleService
     {
         private readonly IMuscleRepository _muscleRepository;
+        private readonly IFileService _fileService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork)
+        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork, IFileService fileService)
         {
             _muscleRepository = muscleRepository;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         public async Task<bool> CreateAsync(Muscle muscle)
         {
             try
             {
+                string[] allowedFileExtensions = [".jpg", ".png"];
+                var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions);
+                muscle.ImageId = createdImageId;
                 await _muscleRepository.CreateAsync(muscle);
                 await _unitOfWork.CommitChangesAsync();
                 return true;

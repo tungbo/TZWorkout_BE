@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TunzWorkout.Application.Common.Interfaces;
+using TunzWorkout.Application.Common.Services.Files;
 using TunzWorkout.Infrastructure.Data;
 using TunzWorkout.Infrastructure.Repository;
 
@@ -19,6 +20,7 @@ namespace TunzWorkout.Infrastructure
             });
 
             services.AddScoped<IMuscleRepository, MuscleRepository>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
             return services;

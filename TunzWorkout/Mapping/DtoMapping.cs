@@ -11,7 +11,7 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
-                ImageId = request.ImageId,
+                ImageFile = request.ImageFile,
             };
         }
         public static Muscle MapToMuscle(this MuscleDTO dto, Guid id)

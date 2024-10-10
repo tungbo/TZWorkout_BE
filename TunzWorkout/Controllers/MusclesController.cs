@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dto.Muscles;
-using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Muscles;
-using TunzWorkout.Domain.Entities.Muscles;
 
 namespace TunzWorkout.Api.Controllers
 {
