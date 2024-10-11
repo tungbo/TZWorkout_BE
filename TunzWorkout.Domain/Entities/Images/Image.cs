@@ -6,6 +6,8 @@ namespace TunzWorkout.Domain.Entities.Images
     public class Image
     {
         public Guid Id { get; set; }
+        public Guid MuscleId { get; set; }
+        public Guid EquipmentId { get; set; }
         public string ImagePath { get; set; }
         public DateTime UploadDate { get; set; }
 

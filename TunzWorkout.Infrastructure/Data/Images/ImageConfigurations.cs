@@ -16,8 +16,8 @@ namespace TunzWorkout.Infrastructure.Data.Images
             builder.Property(x => x.ImagePath).IsRequired();
             builder.Property(x => x.UploadDate).IsRequired();
 
-            builder.HasOne(i => i.Muscle).WithOne(m => m.Image).HasForeignKey<Muscle>(m => m.ImageId);
-            builder.HasOne(i => i.Equipment).WithOne(e => e.Image).HasForeignKey<Equipment>(e => e.ImageId);
+            builder.HasOne(i => i.Muscle).WithOne(m => m.Image).HasForeignKey<Muscle>(m => m.MuscleImageId);
+            builder.HasOne(i => i.Equipment).WithOne(e => e.Image).HasForeignKey<Equipment>(e => e.EquipmentImageId);
         }
     }
 }

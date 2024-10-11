@@ -20,7 +20,8 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = id,
                 Name = dto.Name,
-                ImageId = dto.ImageId,
+                MuscleImageId = dto.ImageId,
+                ImageFile = dto.ImageFile,
             };
         }
         public static MuscleDTO MapToMuscleDTO(this Muscle muscle)
@@ -28,7 +29,7 @@ namespace TunzWorkout.Api.Mapping
             return new MuscleDTO
             {
                 Name = muscle.Name,
-                ImageId = muscle.ImageId,
+                ImageId = muscle.MuscleImageId,
             };
         }
         public static MuscleResponse MapToResponse(this Muscle muscle)
@@ -37,7 +38,7 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = muscle.Id,
                 Name = muscle.Name,
-                ImageId = muscle.ImageId,
+                ImageId = muscle.MuscleImageId,
             };
         }
     }

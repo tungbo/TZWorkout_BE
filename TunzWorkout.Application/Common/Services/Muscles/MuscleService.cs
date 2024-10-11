@@ -1,5 +1,6 @@
 ﻿using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
+using TunzWorkout.Domain.Entities.Images;
 using TunzWorkout.Domain.Entities.Muscles;
 
 namespace TunzWorkout.Application.Common.Services.Muscles
@@ -7,23 +8,28 @@ namespace TunzWorkout.Application.Common.Services.Muscles
     public class MuscleService : IMuscleService
     {
         private readonly IMuscleRepository _muscleRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly IFileService _fileService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork, IFileService fileService)
+        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork, IFileService fileService, IImageRepository imageRepository)
         {
             _muscleRepository = muscleRepository;
             _unitOfWork = unitOfWork;
             _fileService = fileService;
+            _imageRepository = imageRepository;
         }
 
         public async Task<bool> CreateAsync(Muscle muscle)
         {
             try
             {
-                string[] allowedFileExtensions = [".jpg", ".png"];
-                var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions);
-                muscle.ImageId = createdImageId;
+                if(muscle.ImageFile is not null)
+                {
+                    string[] allowedFileExtensions = [".jpg", ".png"];
+                    var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions);
+                    muscle.MuscleImageId = createdImageId;
+                }
                 await _muscleRepository.CreateAsync(muscle);
                 await _unitOfWork.CommitChangesAsync();
                 return true;
@@ -38,13 +44,20 @@ namespace TunzWorkout.Application.Common.Services.Muscles
         {
             try
             {
-                if(await _muscleRepository.ExistByIdAsync(id))
+                var muscle = await _muscleRepository.MuscleByIdAsync(id);
+                if(muscle is null)
                 {
-                    await _muscleRepository.DeleteByIdAsync(id);
-                    await _unitOfWork.CommitChangesAsync();
-                    return true;
+                    return false;
                 }
-                return false;
+                if (muscle.MuscleImageId is not null)
+                {
+                    var image = await _imageRepository.ImageIdAsync(muscle.MuscleImageId);
+                    _fileService.DeleteFileAsync(image.ImagePath);
+                }
+
+                await _muscleRepository.DeleteByIdAsync(id);
+                await _unitOfWork.CommitChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
@@ -72,7 +85,7 @@ namespace TunzWorkout.Application.Common.Services.Muscles
                     throw new KeyNotFoundException($"Muscle with id {muscle.Id} was not found.");
                 }
                 muscleExist.Name = muscle.Name;
-                muscleExist.ImageId = muscle.ImageId;
+                muscleExist.MuscleImageId = muscle.MuscleImageId;
 
                 await _muscleRepository.UpdateAsync(muscleExist);
                 await _unitOfWork.CommitChangesAsync();

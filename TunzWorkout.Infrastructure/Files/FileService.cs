@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using TunzWorkout.Domain.Entities.Images;
+using TunzWorkout.Infrastructure.Data;
 namespace TunzWorkout.Application.Common.Services.Files
 {
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public FileService(IWebHostEnvironment webHostEnvironment)
+        private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _dbContext;
+        public FileService(IWebHostEnvironment webHostEnvironment, ApplicationDbContext dbContext, IConfiguration configuration)
         {
             _webHostEnvironment = webHostEnvironment;
+            _dbContext = dbContext;
+            _configuration = configuration;
         }
 
         public async Task<Guid> SaveFileAsync(IFormFile imageFile, string[] allowedFileExtensions)
@@ -17,8 +24,7 @@ namespace TunzWorkout.Application.Common.Services.Files
                 throw new ArgumentNullException(nameof(imageFile));
             }
 
-            var contentPath = _webHostEnvironment.ContentRootPath;
-            var path = Path.Combine(contentPath, "Uploads");
+            var path = Path.Combine(_configuration["UploadSettings:UploadPath"], "Muscle");
 
             if (!Directory.Exists(path))
             {
@@ -31,9 +37,18 @@ namespace TunzWorkout.Application.Common.Services.Files
             }
             var filedId = Guid.NewGuid();
             var fileName = $"{filedId.ToString()}{ext}";
+            var relativePath = Path.Combine("Muscle", fileName);
             var fileNameWithPath = Path.Combine(path, fileName);
             using var stream = new FileStream(fileNameWithPath, FileMode.Create);
             await imageFile.CopyToAsync(stream);
+
+            Image image = new()
+            {
+                Id = filedId,
+                ImagePath = relativePath,
+                UploadDate = DateTime.Now,
+            };
+            await _dbContext.Images.AddAsync(image);
             return filedId;
         }
 
@@ -44,8 +59,8 @@ namespace TunzWorkout.Application.Common.Services.Files
                 throw new ArgumentNullException(nameof(fileNameWithExtension));
             }
 
-            var contentPath = _webHostEnvironment.ContentRootPath;
-            var path = Path.Combine(contentPath, $"Uploads", fileNameWithExtension);
+            var contentPath = Path.Combine(_configuration["UploadSettings:UploadPath"]);
+            var path = Path.Combine(contentPath, fileNameWithExtension);
             if(!File.Exists(path))
             {
                 throw new FileNotFoundException($"Invalid file path");

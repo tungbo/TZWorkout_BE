@@ -9,11 +9,11 @@ namespace TunzWorkout.Domain.Entities.Muscles
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid? ImageId { get; set; }
+        public Guid? MuscleImageId { get; set; }
 
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
-        public Image Image { get; set; }
+        public ICollection<Image> Images { get; set; }
         public ICollection<ExerciseMuscle> ExerciseMuscles { get; set; }
     }
 }

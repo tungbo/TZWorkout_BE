@@ -7,10 +7,9 @@ namespace TunzWorkout.Domain.Entities.Equipments
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid ImageId { get; set; }
+        public Guid EquipmentImageId { get; set; }
 
-        public Image Image { get; set; }
+        public ICollection<Image> Images { get; set; }
         public ICollection<ExerciseEquipment> ExerciseEquipments { get; set; }
-
     }
 }
