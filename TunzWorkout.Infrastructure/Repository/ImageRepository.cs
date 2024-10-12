@@ -20,6 +20,11 @@ namespace TunzWorkout.Infrastructure.Repository
             return true;
         }
 
+        public async Task<Image> ImageByImageableIdAsync(Guid imageableId)
+        {
+            return await _dbContext.Images.AsNoTracking().FirstOrDefaultAsync(image => image.ImageableId == imageableId);
+        }
+
         public async Task<Image> ImageIdAsync(Guid? id)
         {
             return await _dbContext.Images.AsNoTracking().FirstOrDefaultAsync(image => image.Id == id);

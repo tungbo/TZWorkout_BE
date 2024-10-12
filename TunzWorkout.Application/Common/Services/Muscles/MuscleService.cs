@@ -24,11 +24,11 @@ namespace TunzWorkout.Application.Common.Services.Muscles
         {
             try
             {
-                if(muscle.ImageFile is not null)
+                if (muscle.ImageFile is not null)
                 {
                     string[] allowedFileExtensions = [".jpg", ".png"];
-                    var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions);
-                    muscle.MuscleImageId = createdImageId;
+                    var typeName = typeof(Muscle).Name;
+                    var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
                 }
                 await _muscleRepository.CreateAsync(muscle);
                 await _unitOfWork.CommitChangesAsync();
@@ -45,13 +45,13 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             try
             {
                 var muscle = await _muscleRepository.MuscleByIdAsync(id);
-                if(muscle is null)
+                if (muscle is null)
                 {
                     return false;
                 }
-                if (muscle.MuscleImageId is not null)
+                var image = await _imageRepository.ImageByImageableIdAsync(muscle.Id);
+                if (image is not null)
                 {
-                    var image = await _imageRepository.ImageIdAsync(muscle.MuscleImageId);
                     _fileService.DeleteFileAsync(image.ImagePath);
                 }
 
@@ -77,23 +77,38 @@ namespace TunzWorkout.Application.Common.Services.Muscles
 
         public async Task<Muscle> UpdateAsync(Muscle muscle)
         {
-            try
-            {
-                var muscleExist = await _muscleRepository.MuscleByIdAsync(muscle.Id);
-                if(muscleExist is null)
-                {
-                    throw new KeyNotFoundException($"Muscle with id {muscle.Id} was not found.");
-                }
-                muscleExist.Name = muscle.Name;
-                muscleExist.MuscleImageId = muscle.MuscleImageId;
+            //try
+            //{
+            //    var muscleExist = await _muscleRepository.MuscleByIdAsync(muscle.Id);
+            //    if (muscleExist is null)
+            //    {
+            //        throw new KeyNotFoundException($"Muscle with id {muscle.Id} was not found.");
+            //    }
+            //    muscleExist.Name = muscle.Name;
 
-                await _muscleRepository.UpdateAsync(muscleExist);
-                await _unitOfWork.CommitChangesAsync();
-                return muscleExist;
-            } catch (Exception ex)
-            {
-                throw new Exception("Error. Please try again later.", ex);
-            }
+            //    if (muscle.ImageFile is not null)
+            //    {
+            //        var image = await _imageRepository.ImageByImageableIdAsync(muscle.Id);
+            //        if (image is not null)
+            //        {
+            //            string[] allowedFileExtensions = [".jpg", ".png"];
+            //            var typeName = typeof(Muscle).Name;
+            //            var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
+            //            _fileService.DeleteFileAsync(image.ImagePath);
+            //        }
+
+
+            //    }
+
+            //    await _muscleRepository.UpdateAsync(muscleExist);
+            //    await _unitOfWork.CommitChangesAsync();
+            //    return muscleExist;
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new Exception("Error. Please try again later.", ex);
+            //}
+            throw new NotImplementedException();
         }
     }
 }

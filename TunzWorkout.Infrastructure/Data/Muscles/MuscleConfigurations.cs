@@ -12,10 +12,7 @@ namespace TunzWorkout.Infrastructure.Data.Muscles
             builder.Property(x => x.Id).ValueGeneratedNever();
 
             builder.Property(x => x.Name).IsRequired();
-            builder.Property(x => x.MuscleImageId).IsRequired(false);
             builder.Ignore(x => x.ImageFile);
-
-            builder.HasOne(m => m.Image).WithOne(i => i.Muscle).HasForeignKey<Muscle>(m => m.MuscleImageId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

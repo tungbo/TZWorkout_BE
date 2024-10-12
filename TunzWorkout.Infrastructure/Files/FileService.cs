@@ -17,14 +17,14 @@ namespace TunzWorkout.Application.Common.Services.Files
             _configuration = configuration;
         }
 
-        public async Task<Guid> SaveFileAsync(IFormFile imageFile, string[] allowedFileExtensions)
+        public async Task<Guid> SaveFileAsync(IFormFile imageFile, string[] allowedFileExtensions, string type, Guid imageableId)
         {
             if(imageFile is null)
             {
                 throw new ArgumentNullException(nameof(imageFile));
             }
-
-            var path = Path.Combine(_configuration["UploadSettings:UploadPath"], "Muscle");
+            var pathContent = $"{type}Images";
+            var path = Path.Combine(_configuration["UploadSettings:UploadPath"], pathContent);
 
             if (!Directory.Exists(path))
             {
@@ -47,6 +47,8 @@ namespace TunzWorkout.Application.Common.Services.Files
                 Id = filedId,
                 ImagePath = relativePath,
                 UploadDate = DateTime.Now,
+                Type = type,
+                ImageableId = imageableId,
             };
             await _dbContext.Images.AddAsync(image);
             return filedId;

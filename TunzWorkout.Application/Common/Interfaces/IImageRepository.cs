@@ -8,5 +8,6 @@ namespace TunzWorkout.Application.Common.Interfaces
         Task<bool> UpdateAsync(Image image);
 
         Task<Image> ImageIdAsync(Guid? id);
+        Task<Image> ImageByImageableIdAsync(Guid imageableId);
     }
 }

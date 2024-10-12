@@ -1,5 +1,6 @@
-﻿using TunzWorkout.Domain.Entities.ExerciseEquipments;
-using TunzWorkout.Domain.Entities.Images;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations.Schema;
+using TunzWorkout.Domain.Entities.ExerciseEquipments;
 
 namespace TunzWorkout.Domain.Entities.Equipments
 {
@@ -7,9 +8,9 @@ namespace TunzWorkout.Domain.Entities.Equipments
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Guid EquipmentImageId { get; set; }
 
-        public ICollection<Image> Images { get; set; }
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
         public ICollection<ExerciseEquipment> ExerciseEquipments { get; set; }
     }
 }
