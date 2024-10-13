@@ -6,6 +6,7 @@ namespace TunzWorkout.Application.Common.Interfaces
     {
         Task<bool> CreateAsync(Image image);
         Task<bool> UpdateAsync(Image image);
+        Task<bool> DeleteByIdAsync(Guid id);
 
         Task<Image> ImageIdAsync(Guid? id);
         Task<Image> ImageByImageableIdAsync(Guid imageableId);

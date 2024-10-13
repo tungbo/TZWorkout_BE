@@ -23,8 +23,7 @@ namespace TunzWorkout.Application.Common.Services.Files
             {
                 throw new ArgumentNullException(nameof(imageFile));
             }
-            var pathContent = $"{type}Images";
-            var path = Path.Combine(_configuration["UploadSettings:UploadPath"], pathContent);
+            var path = Path.Combine(_configuration["UploadSettings:UploadPath"], type);
 
             if (!Directory.Exists(path))
             {
@@ -37,7 +36,7 @@ namespace TunzWorkout.Application.Common.Services.Files
             }
             var filedId = Guid.NewGuid();
             var fileName = $"{filedId.ToString()}{ext}";
-            var relativePath = Path.Combine("Muscle", fileName);
+            var relativePath = Path.Combine(type, fileName);
             var fileNameWithPath = Path.Combine(path, fileName);
             using var stream = new FileStream(fileNameWithPath, FileMode.Create);
             await imageFile.CopyToAsync(stream);

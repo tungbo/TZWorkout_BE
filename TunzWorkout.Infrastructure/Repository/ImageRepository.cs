@@ -20,6 +20,17 @@ namespace TunzWorkout.Infrastructure.Repository
             return true;
         }
 
+        public async Task<bool> DeleteByIdAsync(Guid id)
+        {
+            var image = await _dbContext.Images.FindAsync(id);
+            if(image is not null)
+            {
+                _dbContext.Images.Remove(image);
+                return true;
+            }
+            return false;
+        }
+
         public async Task<Image> ImageByImageableIdAsync(Guid imageableId)
         {
             return await _dbContext.Images.AsNoTracking().FirstOrDefaultAsync(image => image.ImageableId == imageableId);

@@ -63,9 +63,9 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateMuscles(MuscleDTO muscleDTO, Guid id)
+        public async Task<IActionResult> UpdateMuscles(CreateMuscleRequest request,Guid id)
         {
-            var muscles = muscleDTO.MapToMuscle(id);
+            var muscles = request.MapToMuscle(id);
 
             await _muscleService.UpdateAsync(muscles);
 

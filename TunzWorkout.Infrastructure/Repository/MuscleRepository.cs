@@ -35,7 +35,6 @@ namespace TunzWorkout.Infrastructure.Repository
         public async Task<bool> ExistByIdAsync(Guid id)
         {
             return await _dbContext.Muscles.AsNoTracking().AnyAsync(muscle => muscle.Id == id);
-            
         }
 
         public async Task<IEnumerable<Muscle>> GetAllAsync()

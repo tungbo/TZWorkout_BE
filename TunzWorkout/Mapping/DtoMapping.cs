@@ -14,13 +14,13 @@ namespace TunzWorkout.Api.Mapping
                 ImageFile = request.ImageFile,
             };
         }
-        public static Muscle MapToMuscle(this MuscleDTO dto, Guid id)
+        public static Muscle MapToMuscle(this CreateMuscleRequest request, Guid id)
         {
             return new Muscle
             {
                 Id = id,
-                Name = dto.Name,
-                ImageFile = dto.ImageFile,
+                Name = request.Name,
+                ImageFile = request.ImageFile,
             };
         }
         public static MuscleDTO MapToMuscleDTO(this Muscle muscle)
