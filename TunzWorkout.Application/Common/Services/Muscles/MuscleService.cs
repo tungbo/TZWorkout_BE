@@ -27,6 +27,11 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             {
                 if (muscle.ImageFile is not null)
                 {
+                    //const int maxFileSizeInBytes = 2 * 1024 * 1024; // 2MB
+                    //if (muscle.ImageFile.Length > maxFileSizeInBytes)
+                    //{
+                    //    throw new Exception("The image file size exceeds the 2MB limit.");
+                    //}
                     string[] allowedFileExtensions = [".jpg", ".png"];
                     var typeName = typeof(Muscle).Name;
                     var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
@@ -102,6 +107,11 @@ namespace TunzWorkout.Application.Common.Services.Muscles
                         var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
                         _fileService.DeleteFileAsync(image.ImagePath);
                         await _imageRepository.DeleteByIdAsync(image.Id);
+                    } else
+                    {
+                        string[] allowedFileExtensions = [".jpg", ".png"];
+                        var typeName = typeof(Muscle).Name;
+                        var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
                     }
                 }
                 await _muscleRepository.UpdateAsync(muscleExist);
@@ -112,8 +122,6 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             {
                 throw new Exception("Error. Please try again later.", ex);
             }
-
-            //throw new NotImplementedException();
         }
     }
 }

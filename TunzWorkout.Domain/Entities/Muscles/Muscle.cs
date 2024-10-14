@@ -7,6 +7,7 @@ namespace TunzWorkout.Domain.Entities.Muscles
     public class Muscle
     {
         public Guid Id { get; set; }
+
         public string Name { get; set; }
 
         [NotMapped]

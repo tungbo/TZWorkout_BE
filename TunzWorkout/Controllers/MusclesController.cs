@@ -51,7 +51,7 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetMuscleById(Guid id)
+        public async Task<IActionResult> GetMuscleById([FromRoute] Guid id)
         {
             var muscle = await _muscleService.MuscleByIdAsync(id);
             if(muscle is null)
@@ -62,8 +62,8 @@ namespace TunzWorkout.Api.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateMuscles(CreateMuscleRequest request,Guid id)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateMuscles([FromForm] UpdateMuscleRequest request, [FromRoute]Guid id)
         {
             var muscles = request.MapToMuscle(id);
 
@@ -73,8 +73,8 @@ namespace TunzWorkout.Api.Controllers
             return Ok(response);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> RemoveMuscles(Guid id)
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> RemoveMuscles([FromRoute] Guid id)
         {
             var deleted = await _muscleService.DeleteByIdAsync(id);
             if(!deleted)

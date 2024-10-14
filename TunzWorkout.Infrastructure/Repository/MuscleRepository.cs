@@ -49,7 +49,7 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task<bool> UpdateAsync(Muscle muscle)
         {
-            _dbContext.Update(muscle);
+            _dbContext.Muscles.Update(muscle);
             return true;
         }
     }
