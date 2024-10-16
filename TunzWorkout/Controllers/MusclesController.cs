@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
-using TunzWorkout.Api.Models.Dto.Muscles;
+using TunzWorkout.Api.Models.Dtos.Muscles;
 using TunzWorkout.Application.Common.Services.Muscles;
 
 namespace TunzWorkout.Api.Controllers
@@ -16,7 +16,7 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMuscle(CreateMuscleRequest request)
+        public async Task<IActionResult> CreateMuscle([FromForm]CreateMuscleRequest request)
         {
             if (request is null)
             {
@@ -63,7 +63,7 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateMuscles([FromForm] UpdateMuscleRequest request, [FromRoute]Guid id)
+        public async Task<IActionResult> UpdateMuscle([FromForm] UpdateMuscleRequest request, [FromRoute]Guid id)
         {
             var muscles = request.MapToMuscle(id);
 
@@ -74,7 +74,7 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> RemoveMuscles([FromRoute] Guid id)
+        public async Task<IActionResult> RemoveMuscle([FromRoute] Guid id)
         {
             var deleted = await _muscleService.DeleteByIdAsync(id);
             if(!deleted)

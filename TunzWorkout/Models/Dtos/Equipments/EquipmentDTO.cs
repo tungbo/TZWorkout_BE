@@ -1,5 +1,5 @@
 ﻿
-namespace TunzWorkout.Api.Models.Dto.Equipments
+namespace TunzWorkout.Api.Models.Dtos.Equipments
 {
     public class EquipmentDTO
     {

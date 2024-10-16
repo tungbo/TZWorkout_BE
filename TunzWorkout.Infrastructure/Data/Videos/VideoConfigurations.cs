@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Domain.Entities.Videos;
 
 namespace TunzWorkout.Infrastructure.Data.Videos
@@ -15,7 +14,7 @@ namespace TunzWorkout.Infrastructure.Data.Videos
             builder.Property(x => x.VideoPath).IsRequired();
             builder.Property(x => x.UploadDate).IsRequired();
 
-            builder.HasOne(v => v.Exercise).WithOne(e => e.Video).HasForeignKey<Exercise>(e => e.VideoId);
+            builder.HasOne(v => v.Exercise).WithMany(e => e.Videos).HasForeignKey(e => e.ExerciseId);
         }
     }
 }

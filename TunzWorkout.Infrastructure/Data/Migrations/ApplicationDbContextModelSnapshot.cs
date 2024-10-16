@@ -83,15 +83,9 @@ namespace TunzWorkout.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("VideoId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LevelId");
-
-                    b.HasIndex("VideoId")
-                        .IsUnique();
 
                     b.ToTable("Exercises");
                 });
@@ -161,6 +155,9 @@ namespace TunzWorkout.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ExerciseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UploadDate")
                         .HasColumnType("datetime2");
 
@@ -169,6 +166,8 @@ namespace TunzWorkout.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
 
                     b.ToTable("Videos");
                 });
@@ -219,15 +218,18 @@ namespace TunzWorkout.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TunzWorkout.Domain.Entities.Videos.Video", "Video")
-                        .WithOne("Exercise")
-                        .HasForeignKey("TunzWorkout.Domain.Entities.Exercises.Exercise", "VideoId")
+                    b.Navigation("Level");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Videos.Video", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Exercises.Exercise", "Exercise")
+                        .WithMany("Videos")
+                        .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Level");
-
-                    b.Navigation("Video");
+                    b.Navigation("Exercise");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Equipments.Equipment", b =>
@@ -240,6 +242,8 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("ExerciseEquipments");
 
                     b.Navigation("ExerciseMuscles");
+
+                    b.Navigation("Videos");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Levels.Level", b =>
@@ -250,12 +254,6 @@ namespace TunzWorkout.Infrastructure.Migrations
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Muscles.Muscle", b =>
                 {
                     b.Navigation("ExerciseMuscles");
-                });
-
-            modelBuilder.Entity("TunzWorkout.Domain.Entities.Videos.Video", b =>
-                {
-                    b.Navigation("Exercise")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TunzWorkout.Application.Common.Services.Equipments;
+using TunzWorkout.Application.Common.Services.Levels;
 using TunzWorkout.Application.Common.Services.Muscles;
 
 namespace TunzWorkout.Application
@@ -10,6 +11,7 @@ namespace TunzWorkout.Application
         {
             services.AddScoped<IMuscleService, MuscleService>();
             services.AddScoped<IEquipmentService, EquipmentService>();
+            services.AddScoped<ILevelService, LevelService>();
 
             return services;
         }

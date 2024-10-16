@@ -93,9 +93,9 @@ namespace TunzWorkout.Application.Common.Services.Equipments
                 var equipmentExist = await _equipmentRepository.EquipmentByIdAsync(equipment.Id);
                 if (equipmentExist is null)
                 {
-                    throw new KeyNotFoundException($"Muscle with id {equipment.Id} was not found.");
+                    throw new KeyNotFoundException($"Equipment with id {equipment.Id} was not found.");
                 }
-                equipment.Name = equipment.Name;
+                equipmentExist.Name = equipment.Name;
 
                 if (equipment.ImageFile is not null)
                 {
@@ -103,7 +103,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
                     if (image is not null)
                     {
                         string[] allowedFileExtensions = [".jpg", ".png"];
-                        var typeName = typeof(Muscle).Name;
+                        var typeName = typeof(Equipment).Name;
                         var createdImageId = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName, equipment.Id);
                         _fileService.DeleteFileAsync(image.ImagePath);
                         await _imageRepository.DeleteByIdAsync(image.Id);
@@ -111,7 +111,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
                     else
                     {
                         string[] allowedFileExtensions = [".jpg", ".png"];
-                        var typeName = typeof(Muscle).Name;
+                        var typeName = typeof(Equipment).Name;
                         var createdImageId = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName, equipment.Id);
                     }
                 }

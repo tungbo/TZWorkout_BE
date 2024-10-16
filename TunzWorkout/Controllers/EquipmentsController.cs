@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
-using TunzWorkout.Api.Models.Dto.Equipments;
+using TunzWorkout.Api.Models.Dtos.Equipments;
 using TunzWorkout.Application.Common.Services.Equipments;
 
 namespace TunzWorkout.Api.Controllers

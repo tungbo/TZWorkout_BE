@@ -1,6 +1,6 @@
-﻿namespace TunzWorkout.Api.Models.Dto.Muscles
+﻿namespace TunzWorkout.Api.Models.Dtos.Equipments
 {
-    public class CreateMuscleRequest
+    public class UpdateEquipmentRequest
     {
         public string Name { get; set; }
         public IFormFile? ImageFile { get; set; }

@@ -14,13 +14,12 @@ namespace TunzWorkout.Infrastructure.Data.Exercises
             builder.Property(x => x.Name);
             builder.Property(x => x.HasEquipment);
             builder.Property(x => x.LevelId);
-            builder.Property(x => x.VideoId);
+
             builder.HasOne(e => e.Level)
                    .WithMany(l => l.Exercises)
                    .HasForeignKey(e => e.LevelId);
-            builder.HasOne(e => e.Video)
-                   .WithOne(v => v.Exercise)
-                   .HasForeignKey<Exercise>(e => e.VideoId);
+
+            builder.HasMany(e => e.Videos).WithOne(v => v.Exercise).HasForeignKey(v => v.ExerciseId);
         }
     }
 }

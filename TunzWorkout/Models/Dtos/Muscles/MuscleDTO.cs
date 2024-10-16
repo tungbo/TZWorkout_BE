@@ -1,4 +1,4 @@
-﻿namespace TunzWorkout.Api.Models.Dto.Muscles
+﻿namespace TunzWorkout.Api.Models.Dtos.Muscles
 {
     public class MuscleDTO
     {
