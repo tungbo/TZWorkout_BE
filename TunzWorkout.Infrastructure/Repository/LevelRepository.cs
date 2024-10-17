@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Domain.Entities.Levels;
-using TunzWorkout.Domain.Entities.Muscles;
 using TunzWorkout.Infrastructure.Data;
 
 namespace TunzWorkout.Infrastructure.Repository

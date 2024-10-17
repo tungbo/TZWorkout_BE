@@ -1,8 +1,6 @@
 ﻿using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
-using TunzWorkout.Domain.Entities.Images;
 using TunzWorkout.Domain.Entities.Muscles;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TunzWorkout.Application.Common.Services.Muscles
 {

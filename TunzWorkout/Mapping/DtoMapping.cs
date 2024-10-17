@@ -1,7 +1,10 @@
-﻿using TunzWorkout.Api.Models.Dtos.Equipments;
+﻿using Azure.Core;
+using TunzWorkout.Api.Models.Dtos.Equipments;
+using TunzWorkout.Api.Models.Dtos.Exercises;
 using TunzWorkout.Api.Models.Dtos.Levels;
 using TunzWorkout.Api.Models.Dtos.Muscles;
 using TunzWorkout.Domain.Entities.Equipments;
+using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Domain.Entities.Levels;
 using TunzWorkout.Domain.Entities.Muscles;
 
@@ -105,6 +108,35 @@ namespace TunzWorkout.Api.Mapping
                 Id = level.Id,
                 Name = level.Name,
                 Description = level.Description,
+            };
+        }
+
+        #endregion
+
+        #region Exercise
+
+        public static Exercise MapToExercise(this CreateExerciseRequest request)
+        {
+            return new Exercise
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                LevelId = request.LevelId,
+                HasEquipment = request.HasEquipment,
+                SelectedEquipmentIds = request.SelectedEquipmentIds,
+                SelectedMuscleIds = request.SelectedMuscleIds,
+            };
+        }
+        public static ExerciseResponse MapToResponse(this Exercise exercise)
+        {
+            return new ExerciseResponse
+            {
+                Id = exercise.Id,
+                Name = exercise.Name,
+                LevelId = exercise.LevelId,
+                HasEquipment = exercise.HasEquipment,
+                SelectedEquipmentIds = exercise.SelectedEquipmentIds,
+                SelectedMuscleIds = exercise.SelectedMuscleIds,
             };
         }
 

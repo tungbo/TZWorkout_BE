@@ -23,6 +23,7 @@ namespace TunzWorkout.Infrastructure
             services.AddScoped<IImageRepository, ImageRepository>();
             services.AddScoped<IEquipmentRepository, EquipmentRepository>();
             services.AddScoped<ILevelRepository, LevelRepository>();
+            services.AddScoped<IExerciseRepository, ExerciseRepository>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
