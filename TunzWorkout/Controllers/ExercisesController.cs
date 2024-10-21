@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Exercises;
+using TunzWorkout.Application.Common.Errors;
 using TunzWorkout.Application.Common.Services.Exercises;
 
 namespace TunzWorkout.Api.Controllers
@@ -17,10 +18,9 @@ namespace TunzWorkout.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateExercise(CreateExerciseRequest request)
         {
-            var excercise = request.MapToExercise();
-            await _exerciseService.CreateAsync(excercise);
-            var response = excercise.MapToResponse();
-            return Ok(response);
+            var toExcercise = request.MapToExercise();
+            var result = await _exerciseService.CreateAsync(toExcercise);
+            return result.Match(exercise => Ok(exercise.MapToResponse()), errors => ErrorHandlingExtensions.HandleError(errors));
         }
     }
 }

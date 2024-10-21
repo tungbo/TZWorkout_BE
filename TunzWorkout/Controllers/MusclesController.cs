@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Muscles;
+using TunzWorkout.Application.Common.Errors;
 using TunzWorkout.Application.Common.Services.Muscles;
 
 namespace TunzWorkout.Api.Controllers
@@ -16,72 +18,62 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMuscle([FromForm]CreateMuscleRequest request)
+        public async Task<IActionResult> CreateMuscle([FromForm] CreateMuscleRequest request)
         {
             if (request is null)
             {
                 //return Problem(detail: "Muscle is null", statusCode: 300, title: "Error");
                 return BadRequest("Invalid request: Muscle data is required.");
             }
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var muscle = request.MapToMuscle();
-            await _muscleService.CreateAsync(muscle);
-            var response = muscle.MapToResponse();
+            var toMuscle = request.MapToMuscle();
+            var result = await _muscleService.CreateAsync(toMuscle);
 
-            return CreatedAtAction(nameof(CreateMuscle), new {id = muscle.Id}, response);
+            return result.Match(
+                muscle => CreatedAtAction(nameof(GetMuscleById), new { id = muscle.Id }, muscle.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetAllMuscles()
         {
-            var muscles = await _muscleService.GetAllAsync();
+            var result = await _muscleService.GetAllAsync();
 
-            var response = new List<MuscleResponse>();
 
-            foreach (var muscle in muscles)
-            {
-                response.Add(muscle.MapToResponse());
-            }
-
-            return Ok(response);
+            return result.Match(
+                muscles => Ok(muscles.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors));
         }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetMuscleById([FromRoute] Guid id)
         {
-            var muscle = await _muscleService.MuscleByIdAsync(id);
-            if(muscle is null)
-            {
-                return NotFound();
-            }
-            var response = muscle.MapToResponse();
-            return Ok(response);
+            var result = await _muscleService.MuscleByIdAsync(id);
+            return result.Match(
+                muscle => Ok(muscle.MapToResponse()), 
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateMuscle([FromForm] UpdateMuscleRequest request, [FromRoute]Guid id)
+        public async Task<IActionResult> UpdateMuscle([FromForm] UpdateMuscleRequest request, [FromRoute] Guid id)
         {
-            var muscles = request.MapToMuscle(id);
-
-            await _muscleService.UpdateAsync(muscles);
-
-            var response = muscles.MapToResponse();
-            return Ok(response);
+            var toMuscle = request.MapToMuscle(id);
+            var result = await _muscleService.UpdateAsync(toMuscle);
+            return result.Match(
+                muscle => Ok(muscle.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> RemoveMuscle([FromRoute] Guid id)
         {
-            var deleted = await _muscleService.DeleteByIdAsync(id);
-            if(!deleted)
-            {
-                return NotFound();
-            }
-            return Ok();
+            var result = await _muscleService.DeleteByIdAsync(id);
+            return result.Match(
+                _ => NoContent(),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
     }
 }

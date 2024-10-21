@@ -7,7 +7,7 @@
         public Guid LevelId { get; set; }
         public bool HasEquipment { get; set; }
 
-        public List<Guid> SelectedMuscleIds { get; set; }
-        public List<Guid> SelectedEquipmentIds { get; set; }
+        public ICollection<Guid> SelectedMuscleIds { get; set; } = new List<Guid>();
+        public ICollection<Guid> SelectedEquipmentIds { get; set; } = new List<Guid>();
     }
 }

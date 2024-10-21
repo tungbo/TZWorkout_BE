@@ -1,14 +1,15 @@
-﻿using TunzWorkout.Domain.Entities.Levels;
-
+﻿using ErrorOr;
+using TunzWorkout.Domain.Entities.Levels;
 namespace TunzWorkout.Application.Common.Services.Levels
 {
     public interface ILevelService
     {
-        Task<bool> CreateAsync(Level level);
-        Task<Level> UpdateAsync(Level level);
-        Task<bool> DeleteByIdAsync(Guid id);
+        Task<ErrorOr<Level>> CreateAsync(Level level);
+        Task<ErrorOr<Level>> UpdateAsync(Level level);
+        Task<ErrorOr<Deleted>> DeleteByIdAsync(Guid id);
 
-        Task<Level> LevelByIdAsync(Guid id);
-        Task<IEnumerable<Level>> GetAllAsync();
+        Task<ErrorOr<Level>> GetLevelByIdAsync(Guid id);
+        //Task<ErrorOr<Level>> GetLevelByNameAsync(Guid id);
+        Task<ErrorOr<IEnumerable<Level>>> GetAllAsync();
     }
 }

@@ -1,14 +1,15 @@
-﻿using TunzWorkout.Domain.Entities.Equipments;
+﻿using ErrorOr;
+using TunzWorkout.Domain.Entities.Equipments;
 
 namespace TunzWorkout.Application.Common.Services.Equipments
 {
     public interface IEquipmentService
     {
-        Task<bool> CreateAsync(Equipment equipment);
-        Task<Equipment> UpdateAsync(Equipment equipment);
-        Task<bool> DeleteByIdAsync(Guid id);
+        Task<ErrorOr<Equipment>> CreateAsync(Equipment equipment);
+        Task<ErrorOr<Equipment>> UpdateAsync(Equipment equipment);
+        Task<ErrorOr<Deleted>> DeleteByIdAsync(Guid id);
 
-        Task<Equipment> EquipmentByIdAsync(Guid id);
-        Task<IEnumerable<Equipment>> GetAllAsync();
+        Task<ErrorOr<Equipment>> EquipmentByIdAsync(Guid id);
+        Task<ErrorOr<IEnumerable<Equipment>>> GetAllAsync();
     }
 }

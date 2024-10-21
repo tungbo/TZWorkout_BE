@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using TunzWorkout.Api.Models.Dtos.Equipments;
+﻿using TunzWorkout.Api.Models.Dtos.Equipments;
 using TunzWorkout.Api.Models.Dtos.Exercises;
 using TunzWorkout.Api.Models.Dtos.Levels;
 using TunzWorkout.Api.Models.Dtos.Muscles;
@@ -46,6 +45,13 @@ namespace TunzWorkout.Api.Mapping
                 Name = muscle.Name,
             };
         }
+        public static MusclesResponse MapToResponse(this IEnumerable<Muscle> muscles)
+        {
+            return new MusclesResponse
+            {
+                Items = muscles.Select(MapToResponse)
+            };
+        }
         #endregion
 
         #region Equipment
@@ -74,6 +80,13 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = equipment.Id,
                 Name = equipment.Name,
+            };
+        }
+        public static EquipmentsResponse MapToResponse(this IEnumerable<Equipment> equipments)
+        {
+            return new EquipmentsResponse
+            {
+                Items = equipments.Select(MapToResponse)
             };
         }
 
@@ -108,6 +121,14 @@ namespace TunzWorkout.Api.Mapping
                 Id = level.Id,
                 Name = level.Name,
                 Description = level.Description,
+            };
+        }
+
+        public static LevelsResponse MapToResponse(this IEnumerable<Level> levels)
+        {
+            return new LevelsResponse
+            {
+                Items = levels.Select(MapToResponse),
             };
         }
 

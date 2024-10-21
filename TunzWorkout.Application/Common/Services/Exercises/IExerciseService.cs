@@ -1,10 +1,11 @@
-﻿using TunzWorkout.Domain.Entities.Exercises;
+﻿using ErrorOr;
+using TunzWorkout.Domain.Entities.Exercises;
 
 namespace TunzWorkout.Application.Common.Services.Exercises
 {
     public interface IExerciseService
     {
-        Task<bool> CreateAsync(Exercise exercise);
+        Task<ErrorOr<Exercise>> CreateAsync(Exercise exercise);
         Task<Exercise> UpdateAsync(Exercise exercise);
         Task<bool> DeleteByIdAsync(Guid id);
 

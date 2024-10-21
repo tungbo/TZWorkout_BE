@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Equipments;
+using TunzWorkout.Application.Common.Errors;
 using TunzWorkout.Application.Common.Services.Equipments;
 
 namespace TunzWorkout.Api.Controllers
@@ -18,43 +19,33 @@ namespace TunzWorkout.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateEquipment(CreateEquipmentRequest request)
         {
-            if (request is null)
-            {
-                return BadRequest("Invalid request: Muscle data is required.");
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var equipment = request.MapToEquipment();
-            await _equipmentService.CreateAsync(equipment);
-            var response = equipment.MapToResponse();
-            return CreatedAtAction(nameof(CreateEquipment), new {id = equipment.Id}, response);
+            var toEquipment = request.MapToEquipment();
+            var result = await _equipmentService.CreateAsync(toEquipment);
+            return result.Match(
+                equipment => CreatedAtAction(nameof(GetEquipmentById), new { id = equipment.Id }, equipment.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllEquipments()
         {
-            var equipments = await _equipmentService.GetAllAsync();
-            var response = new List<EquipmentResponse>();
+            var result = await _equipmentService.GetAllAsync();
 
-            foreach(var equipment in equipments)
-            {
-                response.Add(equipment.MapToResponse());
-            }
-            return Ok(response);
+            return result.Match(
+                equipments => Ok(equipments.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetEquipmentById([FromRoute] Guid id)
         {
-            var equipment = await _equipmentService.EquipmentByIdAsync(id);
-            if (equipment is null)
-            {
-                return NotFound();
-            }
-            var response = equipment.MapToResponse();
-            return Ok(response);
+            var result = await _equipmentService.EquipmentByIdAsync(id);
+            return result.Match(
+                equipment => Ok(equipment.MapToResponse()),
+                errors => ErrorHandlingExtensions.HandleError(errors)
+            );
         }
 
         [HttpPut("{id:guid}")]
@@ -62,21 +53,16 @@ namespace TunzWorkout.Api.Controllers
         {
             var equipment = request.MapToEquipment(id);
 
-            await _equipmentService.UpdateAsync(equipment);
+            var result = await _equipmentService.UpdateAsync(equipment);
 
-            var response = equipment.MapToResponse();
-            return Ok(response);
+            return result.Match(equipment => Ok(equipment.MapToResponse()), errors => ErrorHandlingExtensions.HandleError(errors));
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> RemoveMuscles([FromRoute] Guid id)
         {
-            var deleted = await _equipmentService.DeleteByIdAsync(id);
-            if (!deleted)
-            {
-                return NotFound();
-            }
-            return Ok();
+            var result = await _equipmentService.DeleteByIdAsync(id);
+            return result.Match(_ => NoContent(), errors => ErrorHandlingExtensions.HandleError(errors));
         }
 
     }

@@ -8,8 +8,10 @@ namespace TunzWorkout.Application.Common.Interfaces
         Task<bool> UpdateAsync(Equipment equipment);
         Task<bool> DeleteByIdAsync(Guid id);
         Task<bool> ExistByIdAsync(Guid id);
+        Task<bool> ExistByNameAsync(string name);
 
-        Task<Equipment> EquipmentByIdAsync(Guid id);
+        Task<Equipment?> EquipmentByIdAsync(Guid id);
+        Task<Equipment?> EquipmentByNameAsync(string name);
         Task<IEnumerable<Equipment>> GetAllAsync();
     }
 }

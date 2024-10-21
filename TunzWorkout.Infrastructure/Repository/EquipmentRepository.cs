@@ -23,22 +23,28 @@ namespace TunzWorkout.Infrastructure.Repository
         public async Task<bool> DeleteByIdAsync(Guid id)
         {
             var equipment = await _dbContext.Equipments.FindAsync(id);
-            if(equipment is not null)
-            {
-                _dbContext.Equipments.Remove(equipment);
-                return true;
-            }
-            return false;
+            _dbContext.Equipments.Remove(equipment);
+            return true;
         }
 
-        public Task<Equipment> EquipmentByIdAsync(Guid id)
+        public Task<Equipment?> EquipmentByIdAsync(Guid id)
         {
             return _dbContext.Equipments.AsNoTracking().FirstOrDefaultAsync(equipment => equipment.Id == id);
+        }
+
+        public Task<Equipment?> EquipmentByNameAsync(string name)
+        {
+            return _dbContext.Equipments.AsNoTracking().FirstOrDefaultAsync(equipment => equipment.Name == name);
         }
 
         public async Task<bool> ExistByIdAsync(Guid id)
         {
             return await _dbContext.Equipments.AnyAsync(equipment => equipment.Id == id);
+        }
+
+        public async Task<bool> ExistByNameAsync(string name)
+        {
+            return await _dbContext.Equipments.AnyAsync(equipment => equipment.Name == name);
         }
 
         public async Task<IEnumerable<Equipment>> GetAllAsync()

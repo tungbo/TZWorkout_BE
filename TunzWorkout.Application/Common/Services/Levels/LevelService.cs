@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ErrorOr;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Domain.Entities.Levels;
 
@@ -8,84 +11,98 @@ namespace TunzWorkout.Application.Common.Services.Levels
     {
         private readonly ILevelRepository _levelRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IValidator<Level> _levelValidator;
 
-        public LevelService(ILevelRepository levelRepository, IUnitOfWork unitOfWork)
+        public LevelService(ILevelRepository levelRepository, IUnitOfWork unitOfWork, IValidator<Level> levelValidator)
         {
             _levelRepository = levelRepository;
             _unitOfWork = unitOfWork;
+            _levelValidator = levelValidator;
         }
 
-        public async Task<bool> CreateAsync(Level level)
+        public async Task<ErrorOr<Level>> CreateAsync(Level level)
         {
-            try
-            {
-                if(await _levelRepository.ExistByIdAsync(level.Id))
-                {
-                    return false;
-                }
+            var validationResult = await _levelValidator.ValidateAsync(level);
 
-                await _levelRepository.CreateAsync(level);
-                await _unitOfWork.CommitChangesAsync();
-                return true;
-
-            }catch (Exception ex)
+            if (!validationResult.IsValid)
             {
-                throw new Exception("Error. Please try again later.", ex);
+                var errorMessages = validationResult.Errors
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Error.Validation(description: string.Join(" & ", errorMessages));
             }
+
+            if (await _levelRepository.ExistByIdName(level.Name))
+            {
+                return Error.Conflict(description: "Level exist");
+            }
+
+            await _levelRepository.CreateAsync(level);
+            await _unitOfWork.CommitChangesAsync();
+            return level;
         }
 
-        public async Task<bool> DeleteByIdAsync(Guid id)
+        public async Task<ErrorOr<Deleted>> DeleteByIdAsync(Guid id)
         {
-            try
-            {
-                var level = await _levelRepository.LevelByIdAsync(id);
-                if (level is null)
-                {
-                    return false;
-                }
+            if (!await _levelRepository.ExistByIdAsync(id)) { return Error.NotFound(description: "Level not found"); }
 
-                await _levelRepository.DeleteByIdAsync(id);
-                await _unitOfWork.CommitChangesAsync();
-                return true;
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error. Please try again later.", ex);
-            }
+            await _levelRepository.DeleteByIdAsync(id);
+            await _unitOfWork.CommitChangesAsync();
+            return Result.Deleted;
         }
 
-        public async Task<IEnumerable<Level>> GetAllAsync()
+        public async Task<ErrorOr<IEnumerable<Level>>> GetAllAsync()
         {
-            return await _levelRepository.GetAllAsync();
+            var levels = await _levelRepository.GetAllAsync();
+            if (levels is null || !levels.Any())
+            {
+                return Error.NotFound(description: "No levels found.");
+            }
+            return levels.ToList();
         }
 
-        public Task<Level> LevelByIdAsync(Guid id)
+        public async Task<ErrorOr<Level>> GetLevelByIdAsync(Guid id)
         {
-            return _levelRepository.LevelByIdAsync(id);
+            var level = await _levelRepository.LevelByIdAsync(id);
+
+            if (level is null)
+            {
+                return Error.NotFound(description: "Level not found");
+            }
+            return level;
         }
 
-        public async Task<Level> UpdateAsync(Level level)
+        public async Task<ErrorOr<Level>> UpdateAsync(Level level)
         {
-            try
-            {
-                var levelExist = await _levelRepository.LevelByIdAsync(level.Id);
-                if (levelExist is null)
-                {
-                    throw new KeyNotFoundException($"Level with id {level.Id} was not found.");
-                }
-                levelExist.Name = level.Name;
-                levelExist.Description = level.Description;
+            var validationResult = await _levelValidator.ValidateAsync(level);
 
-                await _levelRepository.UpdateAsync(levelExist);
-                await _unitOfWork.CommitChangesAsync();
-                return levelExist;
-
-            }
-            catch (Exception ex)
+            if (!validationResult.IsValid)
             {
-                throw new Exception("Error. Please try again later.", ex);
+                var errorMessages = validationResult.Errors
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Error.Validation(description: string.Join(" & ", errorMessages));
             }
+
+            var levelExist = await _levelRepository.LevelByIdAsync(level.Id);
+            if (levelExist is null)
+            {
+                return Error.NotFound(description: "Level not found");
+            }
+            var levelWithSameName = await _levelRepository.LevelByNameAsync(level.Name);
+            if (levelWithSameName != null && levelWithSameName.Id != level.Id)
+            {
+                return Error.Conflict(description: "Level name already exists");
+            }
+
+            levelExist.Name = level.Name;
+            levelExist.Description = level.Description;
+
+            await _levelRepository.UpdateAsync(levelExist);
+            await _unitOfWork.CommitChangesAsync();
+            return levelExist;
         }
     }
 }

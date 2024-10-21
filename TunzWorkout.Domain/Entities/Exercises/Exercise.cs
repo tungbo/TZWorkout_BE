@@ -19,10 +19,10 @@ namespace TunzWorkout.Domain.Entities.Exercises
 
         [ValidateNever]
         [NotMapped]
-        public List<Guid> SelectedMuscleIds { get; set; } = new List<Guid>();
+        public ICollection<Guid> SelectedMuscleIds { get; set; } = new List<Guid>();
         [ValidateNever]
         [NotMapped]
-        public List<Guid> SelectedEquipmentIds { get; set; } = new List<Guid>();
+        public ICollection<Guid> SelectedEquipmentIds { get; set; } = new List<Guid>();
 
         public ICollection<Video> Videos { get; set; }
         public ICollection<ExerciseMuscle> ExerciseMuscles { get; set; } = new List<ExerciseMuscle>();
