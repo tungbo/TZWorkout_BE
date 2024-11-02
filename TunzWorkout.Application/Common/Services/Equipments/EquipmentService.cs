@@ -2,6 +2,7 @@
 using FluentValidation;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
+using TunzWorkout.Domain.Entities.EquipmentImages;
 using TunzWorkout.Domain.Entities.Equipments;
 
 namespace TunzWorkout.Application.Common.Services.Equipments
@@ -9,16 +10,16 @@ namespace TunzWorkout.Application.Common.Services.Equipments
     public class EquipmentService : IEquipmentService
     {
         private readonly IEquipmentRepository _equipmentRepository;
+        private readonly IEquipmentImageRepository _equipmentImageRepository;
         private readonly IFileService _fileService;
-        private readonly IImageRepository _imageRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<Equipment> _equipmentValidator;
 
-        public EquipmentService(IEquipmentRepository equipmentRepository, IFileService fileService, IImageRepository imageRepository, IUnitOfWork unitOfWork, IValidator<Equipment> equipmentValidator)
+        public EquipmentService(IEquipmentRepository equipmentRepository, IFileService fileService, IEquipmentImageRepository equipmentImageRepository, IUnitOfWork unitOfWork, IValidator<Equipment> equipmentValidator)
         {
             _equipmentRepository = equipmentRepository;
             _fileService = fileService;
-            _imageRepository = imageRepository;
+            _equipmentImageRepository = equipmentImageRepository;
             _unitOfWork = unitOfWork;
             _equipmentValidator = equipmentValidator;
         }
@@ -29,11 +30,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
             if (await _equipmentRepository.ExistByNameAsync(equipment.Name))
@@ -50,11 +47,25 @@ namespace TunzWorkout.Application.Common.Services.Equipments
                 //}
                 string[] allowedFileExtensions = [".jpg", ".png"];
                 var typeName = typeof(Equipment).Name;
-                var createdImageId = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName, equipment.Id);
+                var result = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName);
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+                var image = new EquipmentImage
+                {
+                    Id = Guid.NewGuid(),
+                    ImagePath = result.Value,
+                    UploadDate = DateTime.Now,
+                    EquipmentId = equipment.Id
+                };
+                await _equipmentImageRepository.CreateAsync(image);
             }
             await _equipmentRepository.CreateAsync(equipment);
             await _unitOfWork.CommitChangesAsync();
-            return equipment;
+
+            var createdEquipment = await _equipmentRepository.EquipmentByIdAsync(equipment.Id);
+            return createdEquipment is not null ? createdEquipment : Error.NotFound(description: "Equipment not found.");
         }
 
         public async Task<ErrorOr<Deleted>> DeleteByIdAsync(Guid id)
@@ -64,14 +75,19 @@ namespace TunzWorkout.Application.Common.Services.Equipments
             {
                 return Error.NotFound(description: "Equipment not found.");
             }
-            var image = await _imageRepository.ImageByImageableIdAsync(equipment.Id);
+            var image = await _equipmentImageRepository.GetEquipmentImageByEquipmentIdAsync(equipment.Id);
             if (image is not null)
             {
-                _fileService.DeleteFileAsync(image.ImagePath);
-
-                await _equipmentRepository.DeleteByIdAsync(id);
-                await _imageRepository.DeleteByIdAsync(image.Id);
-                await _unitOfWork.CommitChangesAsync();
+                var result = _fileService.DeleteFileAsync(image.ImagePath);
+                if (result.IsCompleted)
+                {
+                    await _equipmentRepository.DeleteByIdAsync(id);
+                    await _unitOfWork.CommitChangesAsync();
+                }
+                else
+                {
+                    return Error.Conflict(description: "Error while deleting image.");
+                }
             }
             else
             {
@@ -94,7 +110,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
         public async Task<ErrorOr<IEnumerable<Equipment>>> GetAllAsync()
         {
             var equipments = await _equipmentRepository.GetAllAsync();
-            if (equipments is null | !equipments.Any())
+            if (equipments is null || !equipments.Any())
             {
                 return Error.NotFound(description: "Equipment not found.");
             }
@@ -108,11 +124,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
             var equipmentExist = await _equipmentRepository.EquipmentByIdAsync(equipment.Id);
@@ -130,25 +142,39 @@ namespace TunzWorkout.Application.Common.Services.Equipments
 
             if (equipment.ImageFile is not null)
             {
-                var image = await _imageRepository.ImageByImageableIdAsync(equipment.Id);
+                var image = await _equipmentImageRepository.GetEquipmentImageByEquipmentIdAsync(equipment.Id);
                 if (image is not null)
                 {
-                    string[] allowedFileExtensions = [".jpg", ".png"];
-                    var typeName = typeof(Equipment).Name;
-                    var createdImageId = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName, equipment.Id);
-                    _fileService.DeleteFileAsync(image.ImagePath);
-                    await _imageRepository.DeleteByIdAsync(image.Id);
+                    var deleteResult = _fileService.DeleteFileAsync(image.ImagePath);
+                    if (deleteResult.IsCompleted)
+                    {
+                        await _equipmentImageRepository.DeleteByIdAsync(image.Id);
+                    }
+                    else
+                    {
+                        return Error.Conflict(description: "Error while deleting image.");
+                    }
                 }
-                else
+                string[] allowedFileExtensions = [".jpg", ".png"];
+                var typeName = typeof(Equipment).Name;
+                var result = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName);
+                if (result.IsError)
                 {
-                    string[] allowedFileExtensions = [".jpg", ".png"];
-                    var typeName = typeof(Equipment).Name;
-                    var createdImageId = await _fileService.SaveFileAsync(equipment.ImageFile, allowedFileExtensions, typeName, equipment.Id);
+                    return result.Errors;
                 }
+                var equipmentImage = new EquipmentImage
+                {
+                    Id = Guid.NewGuid(),
+                    ImagePath = result.Value,
+                    UploadDate = DateTime.Now,
+                    EquipmentId = equipment.Id
+                };
+                await _equipmentImageRepository.CreateAsync(equipmentImage);
             }
             await _equipmentRepository.UpdateAsync(equipmentExist);
             await _unitOfWork.CommitChangesAsync();
-            return equipmentExist;
+            var updatedEquipment = await _equipmentRepository.EquipmentByIdAsync(equipment.Id);
+            return updatedEquipment is not null ? updatedEquipment : Error.NotFound(description: "Equipment not found.");
         }
     }
 }

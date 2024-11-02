@@ -40,12 +40,12 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task<IEnumerable<Muscle>> GetAllAsync()
         {
-            return await _dbContext.Muscles.AsNoTracking().ToListAsync();
+            return await _dbContext.Muscles.AsNoTracking().Include(x => x.MuscleImages).ToListAsync();
         }
 
         public async Task<Muscle?> MuscleByIdAsync(Guid id)
         {
-            return await _dbContext.Muscles.AsNoTracking().FirstOrDefaultAsync(muscle => muscle.Id == id);
+            return await _dbContext.Muscles.AsNoTracking().Include(x=>x.MuscleImages).FirstOrDefaultAsync(muscle => muscle.Id == id);
         }
 
         public async Task<Muscle?> MuscleByNameAsync(string name)
@@ -56,7 +56,7 @@ namespace TunzWorkout.Infrastructure.Repository
         public async Task<bool> UpdateAsync(Muscle muscle)
         {
             _dbContext.Muscles.Update(muscle);
-            return true;
+            return await Task.FromResult(true);
         }
     }
 }

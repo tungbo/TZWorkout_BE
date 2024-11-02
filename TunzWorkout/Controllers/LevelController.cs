@@ -8,7 +8,7 @@ namespace TunzWorkout.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LevelController : ControllerBase
+    public class LevelController : ApiController
     {
         private readonly ILevelService _levelService;
         public LevelController(ILevelService levelService)
@@ -27,7 +27,7 @@ namespace TunzWorkout.Api.Controllers
             var toLevel = request.MapToLevel();
             var result = await _levelService.CreateAsync(toLevel);
             return result.Match(
-                level => CreatedAtAction(nameof(GetLevelById), new { id = level.Id}, level.MapToResponse()), errors => ErrorHandlingExtensions.HandleError(errors)
+                level => CreatedAtAction(nameof(GetLevelById), new { id = level.Id}, level.MapToResponse()), Problem
             );
         }
 
@@ -50,7 +50,7 @@ namespace TunzWorkout.Api.Controllers
             var result = await _levelService.GetLevelByIdAsync(id);
             return result.Match(
                 level => Ok(level.MapToResponse()),
-                errors => ErrorHandlingExtensions.HandleError(errors)
+                Problem
             );
         }
 
@@ -59,14 +59,14 @@ namespace TunzWorkout.Api.Controllers
         {
             var toLevel = request.MapToLevel(id);
             var result = await _levelService.UpdateAsync(toLevel);
-            return result.Match(level => Ok(level.MapToResponse()), errors => ErrorHandlingExtensions.HandleError(errors));
+            return result.Match(level => Ok(level.MapToResponse()), Problem);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> RemoveLevel([FromRoute] Guid id)
         {
             var result = await _levelService.DeleteByIdAsync(id);
-            return result.Match(_ => NoContent(), errors => ErrorHandlingExtensions.HandleError(errors));
+            return result.Match(_ => NoContent(), Problem);
         }
     }
 }

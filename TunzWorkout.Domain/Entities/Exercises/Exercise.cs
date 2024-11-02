@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations.Schema;
 using TunzWorkout.Domain.Entities.ExerciseEquipments;
 using TunzWorkout.Domain.Entities.ExerciseMuscles;
@@ -14,6 +15,8 @@ namespace TunzWorkout.Domain.Entities.Exercises
         public Guid LevelId { get; set; }
         public bool HasEquipment { get; set; } = false;
 
+        [NotMapped]
+        public IFormFile? VideoFile { get; set; }
         public Level Level { get; set; }
 
 

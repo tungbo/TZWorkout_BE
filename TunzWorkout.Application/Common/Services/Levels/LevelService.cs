@@ -1,7 +1,5 @@
 ﻿using ErrorOr;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Domain.Entities.Levels;
 
@@ -26,14 +24,10 @@ namespace TunzWorkout.Application.Common.Services.Levels
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
-            if (await _levelRepository.ExistByIdName(level.Name))
+            if (await _levelRepository.ExistByIdName(level.Name)) 
             {
                 return Error.Conflict(description: "Level exist");
             }
@@ -79,15 +73,11 @@ namespace TunzWorkout.Application.Common.Services.Levels
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
-            var levelExist = await _levelRepository.LevelByIdAsync(level.Id);
-            if (levelExist is null)
+            var existingLevel = await _levelRepository.LevelByIdAsync(level.Id);
+            if (existingLevel is null)
             {
                 return Error.NotFound(description: "Level not found");
             }
@@ -97,12 +87,12 @@ namespace TunzWorkout.Application.Common.Services.Levels
                 return Error.Conflict(description: "Level name already exists");
             }
 
-            levelExist.Name = level.Name;
-            levelExist.Description = level.Description;
+            existingLevel.Name = level.Name;
+            existingLevel.Description = level.Description;
 
-            await _levelRepository.UpdateAsync(levelExist);
+            await _levelRepository.UpdateAsync(existingLevel);
             await _unitOfWork.CommitChangesAsync();
-            return levelExist;
+            return existingLevel;
         }
     }
 }

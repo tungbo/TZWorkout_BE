@@ -2,7 +2,7 @@
 using FluentValidation;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
-using TunzWorkout.Domain.Entities.Levels;
+using TunzWorkout.Domain.Entities.MuscleImages;
 using TunzWorkout.Domain.Entities.Muscles;
 
 namespace TunzWorkout.Application.Common.Services.Muscles
@@ -10,17 +10,17 @@ namespace TunzWorkout.Application.Common.Services.Muscles
     public class MuscleService : IMuscleService
     {
         private readonly IMuscleRepository _muscleRepository;
-        private readonly IImageRepository _imageRepository;
+        private readonly IMuscleImageRepository _muscleImageRepository;
         private readonly IFileService _fileService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<Muscle> _muscleValidator;
 
-        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork, IFileService fileService, IImageRepository imageRepository, IValidator<Muscle> muscleValidator)
+        public MuscleService(IMuscleRepository muscleRepository, IUnitOfWork unitOfWork, IFileService fileService, IMuscleImageRepository muscleImageRepository, IValidator<Muscle> muscleValidator)
         {
             _muscleRepository = muscleRepository;
             _unitOfWork = unitOfWork;
             _fileService = fileService;
-            _imageRepository = imageRepository;
+            _muscleImageRepository = muscleImageRepository;
             _muscleValidator = muscleValidator;
         }
 
@@ -30,16 +30,12 @@ namespace TunzWorkout.Application.Common.Services.Muscles
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
             if (await _muscleRepository.ExistByNameAsync(muscle.Name))
             {
-                return Error.Conflict(description:"Muscle exist.");
+                return Error.Conflict(description: "Muscle exist.");
             }
 
             if (muscle.ImageFile is not null)
@@ -51,11 +47,24 @@ namespace TunzWorkout.Application.Common.Services.Muscles
                 //}
                 string[] allowedFileExtensions = [".jpg", ".png"];
                 var typeName = typeof(Muscle).Name;
-                var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
+                var result = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName);
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+                var muscleImage = new MuscleImage
+                {
+                    Id = Guid.NewGuid(),
+                    ImagePath = result.Value,
+                    UploadDate = DateTime.Now,
+                    MuscleId = muscle.Id
+                };
+                await _muscleImageRepository.CreateAsync(muscleImage);
             }
             await _muscleRepository.CreateAsync(muscle);
             await _unitOfWork.CommitChangesAsync();
-            return muscle;
+            var createdMuscle = await _muscleRepository.MuscleByIdAsync(muscle.Id);
+            return createdMuscle is not null ? createdMuscle : Error.NotFound(description: "Muscle not found.");
         }
 
         public async Task<ErrorOr<Deleted>> DeleteByIdAsync(Guid id)
@@ -63,16 +72,21 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             var muscle = await _muscleRepository.MuscleByIdAsync(id);
             if (muscle is null)
             {
-                return Error.NotFound(description:"Muscle not found.");
+                return Error.NotFound(description: "Muscle not found.");
             }
-            var image = await _imageRepository.ImageByImageableIdAsync(muscle.Id);
+            var image = await _muscleImageRepository.GetMuscleImageByMuscleIdAsync(muscle.Id);
             if (image is not null)
             {
-                _fileService.DeleteFileAsync(image.ImagePath);
-
-                await _muscleRepository.DeleteByIdAsync(id);
-                await _imageRepository.DeleteByIdAsync(image.Id);
-                await _unitOfWork.CommitChangesAsync();
+                var result = _fileService.DeleteFileAsync(image.ImagePath);
+                if (result.IsCompleted)
+                {
+                    await _muscleRepository.DeleteByIdAsync(id);
+                    await _unitOfWork.CommitChangesAsync();
+                }
+                else
+                {
+                    return Error.Conflict(description: "Error deleting image file.");
+                }
             }
             else
             {
@@ -87,7 +101,7 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             var muscles = await _muscleRepository.GetAllAsync();
             if (muscles is null || !muscles.Any())
             {
-                return Error.NotFound(description:"No muscles found.");
+                return Error.NotFound(description: "No muscles found.");
             }
             return muscles.ToList();
         }
@@ -97,7 +111,7 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             var muscle = await _muscleRepository.MuscleByIdAsync(id);
             if (muscle is null)
             {
-                return Error.NotFound(description:"Muscle not found");
+                return Error.NotFound(description: "Muscle not found");
             }
             return muscle;
         }
@@ -108,20 +122,16 @@ namespace TunzWorkout.Application.Common.Services.Muscles
 
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Error.Validation(description: string.Join(" & ", errorMessages));
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
             }
 
             var muscleExist = await _muscleRepository.MuscleByIdAsync(muscle.Id);
             if (muscleExist is null)
             {
-                return Error.NotFound(description:"Muscle not found");
+                return Error.NotFound(description: "Muscle not found");
             }
             var muscleWithSameName = await _muscleRepository.MuscleByNameAsync(muscle.Name);
-            if (muscleWithSameName != null && muscleWithSameName.Id != muscle.Id)
+            if (muscleWithSameName is not null && muscleWithSameName.Id != muscle.Id)
             {
                 return Error.Conflict(description: "Muscle name already exists");
             }
@@ -129,25 +139,39 @@ namespace TunzWorkout.Application.Common.Services.Muscles
 
             if (muscle.ImageFile is not null)
             {
-                var image = await _imageRepository.ImageByImageableIdAsync(muscle.Id);
+                var image = await _muscleImageRepository.GetMuscleImageByMuscleIdAsync(muscle.Id);
                 if (image is not null)
                 {
-                    string[] allowedFileExtensions = [".jpg", ".png"];
-                    var typeName = typeof(Muscle).Name;
-                    var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
-                    _fileService.DeleteFileAsync(image.ImagePath);
-                    await _imageRepository.DeleteByIdAsync(image.Id);
+                    var deletedResult = _fileService.DeleteFileAsync(image.ImagePath);
+                    if (deletedResult.IsCompleted)
+                    {
+                        await _muscleImageRepository.DeleteByIdAsync(image.Id);
+                    }
+                    else
+                    {
+                        return Error.Conflict(description: "Error while deleting image.");
+                    }
                 }
-                else
+                string[] allowedFileExtensions = [".jpg", ".png"];
+                var typeName = typeof(Muscle).Name;
+                var result = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName);
+                if (result.IsError)
                 {
-                    string[] allowedFileExtensions = [".jpg", ".png"];
-                    var typeName = typeof(Muscle).Name;
-                    var createdImageId = await _fileService.SaveFileAsync(muscle.ImageFile, allowedFileExtensions, typeName, muscle.Id);
+                    return result.Errors;
                 }
+                var muscleImage = new MuscleImage
+                {
+                    Id = Guid.NewGuid(),
+                    ImagePath = result.Value,
+                    UploadDate = DateTime.Now,
+                    MuscleId = muscle.Id
+                };
+                await _muscleImageRepository.CreateAsync(muscleImage);
             }
             await _muscleRepository.UpdateAsync(muscleExist);
             await _unitOfWork.CommitChangesAsync();
-            return muscleExist;
+            var updatedMuscle = await _muscleRepository.MuscleByIdAsync(muscle.Id);
+            return updatedMuscle is not null ? updatedMuscle : Error.NotFound("Muscle not found");
         }
     }
 }

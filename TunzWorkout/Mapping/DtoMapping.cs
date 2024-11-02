@@ -43,6 +43,7 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = muscle.Id,
                 Name = muscle.Name,
+                ImageUrl = (muscle.MuscleImages != null) ? (string.Join(",", muscle.MuscleImages.Select(x => x.ImagePath))) : (string.Empty),
             };
         }
         public static MusclesResponse MapToResponse(this IEnumerable<Muscle> muscles)
@@ -80,6 +81,7 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = equipment.Id,
                 Name = equipment.Name,
+                ImageUrl = (equipment.EquipmentImages != null) ? (string.Join(",", equipment.EquipmentImages.Select(x => x.ImagePath))) : (string.Empty),
             };
         }
         public static EquipmentsResponse MapToResponse(this IEnumerable<Equipment> equipments)
@@ -144,6 +146,20 @@ namespace TunzWorkout.Api.Mapping
                 Name = request.Name,
                 LevelId = request.LevelId,
                 HasEquipment = request.HasEquipment,
+                VideoFile = request.VideoFile,
+                SelectedEquipmentIds = request.SelectedEquipmentIds,
+                SelectedMuscleIds = request.SelectedMuscleIds,
+            };
+        }
+        public static Exercise MapToExercise(this UpdateExerciseRequest request, Guid id)
+        {
+            return new Exercise
+            {
+                Id = id,
+                Name = request.Name,
+                LevelId = request.LevelId,
+                HasEquipment = request.HasEquipment,
+                VideoFile = request.VideoFile,
                 SelectedEquipmentIds = request.SelectedEquipmentIds,
                 SelectedMuscleIds = request.SelectedMuscleIds,
             };
@@ -154,10 +170,30 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = exercise.Id,
                 Name = exercise.Name,
-                LevelId = exercise.LevelId,
+                LevelName = exercise.Level.Name,
                 HasEquipment = exercise.HasEquipment,
-                SelectedEquipmentIds = exercise.SelectedEquipmentIds,
-                SelectedMuscleIds = exercise.SelectedMuscleIds,
+
+                SelectedMuscles = exercise.ExerciseMuscles.Select(el => new MuscleResponse
+                {
+                    Id = el.MuscleId,
+                    Name = el.Muscle.Name,
+                    ImageUrl = el.Muscle.MuscleImages != null ? string.Join(",", el.Muscle.MuscleImages.Select(x => x.ImagePath)) : string.Empty,
+                }).ToList(),
+
+                SelectedEquipments = exercise.ExerciseEquipments.Select(el => new EquipmentResponse
+                {
+                    Id = el.EquipmentId,
+                    Name = el.Equipment.Name,
+                    ImageUrl = el.Equipment.EquipmentImages != null ? string.Join(",", el.Equipment.EquipmentImages.Select(x => x.ImagePath)) : string.Empty,
+                }).ToList(),
+            };
+        }
+
+        public static ExercisesResponse MapToResponse(this IEnumerable<Exercise> exercises)
+        {
+            return new ExercisesResponse
+            {
+                Items = exercises.Select(MapToResponse),
             };
         }
 

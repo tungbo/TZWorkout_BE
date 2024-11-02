@@ -7,8 +7,7 @@ using TunzWorkout.Application.Common.Services.Exercises;
 namespace TunzWorkout.Api.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class ExercisesController : ControllerBase
+    public class ExercisesController : ApiController
     {
         private readonly IExerciseService _exerciseService;
         public ExercisesController(IExerciseService exerciseService)
@@ -16,11 +15,42 @@ namespace TunzWorkout.Api.Controllers
             _exerciseService = exerciseService;
         }
         [HttpPost]
+        [RequestSizeLimit(50 * 1024 * 1024)]
         public async Task<IActionResult> CreateExercise(CreateExerciseRequest request)
         {
             var toExcercise = request.MapToExercise();
             var result = await _exerciseService.CreateAsync(toExcercise);
-            return result.Match(exercise => Ok(exercise.MapToResponse()), errors => ErrorHandlingExtensions.HandleError(errors));
+            return result.Match(exercise => Ok(exercise.MapToResponse()), Problem);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var result = await _exerciseService.GetAllAsync();
+            return result.Match(exercises => Ok(exercises.MapToResponse()), Problem);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetExerciseById([FromRoute] Guid id)
+        {
+            var result = await _exerciseService.ExerciseByIdAsync(id);
+            return result.Match(exercise => Ok(exercise.MapToResponse()), Problem);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> RemoveExercise([FromRoute]Guid id)
+        {
+            var result = await _exerciseService.DeleteByIdAsync(id);
+            return result.Match(_=>NoContent(),Problem);
+        }
+
+        [HttpPut("{id:guid}")]
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        public async Task<IActionResult> UpdateExercise([FromForm] UpdateExerciseRequest request, [FromRoute] Guid id)
+        {
+            var toExercise = request.MapToExercise(id);
+            var result = await _exerciseService.UpdateAsync(toExercise);
+            return result.Match(exercise => Ok(exercise.MapToResponse()), Problem);
         }
     }
 }

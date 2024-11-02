@@ -29,7 +29,7 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public Task<Equipment?> EquipmentByIdAsync(Guid id)
         {
-            return _dbContext.Equipments.AsNoTracking().FirstOrDefaultAsync(equipment => equipment.Id == id);
+            return _dbContext.Equipments.AsNoTracking().Include(x=>x.EquipmentImages).FirstOrDefaultAsync(equipment => equipment.Id == id);
         }
 
         public Task<Equipment?> EquipmentByNameAsync(string name)
@@ -49,13 +49,13 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task<IEnumerable<Equipment>> GetAllAsync()
         {
-            return await _dbContext.Equipments.AsNoTracking().ToListAsync();
+            return await _dbContext.Equipments.AsNoTracking().Include(x => x.EquipmentImages).ToListAsync();
         }
 
-        public async Task<bool> UpdateAsync(Equipment equipment)
+        public Task<bool> UpdateAsync(Equipment equipment)
         {
             _dbContext.Equipments.Update(equipment);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

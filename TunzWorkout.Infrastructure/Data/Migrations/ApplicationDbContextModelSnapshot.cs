@@ -22,6 +22,29 @@ namespace TunzWorkout.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.EquipmentImages.EquipmentImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EquipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("EquipmentImages");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Equipments.Equipment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -134,6 +157,29 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.ToTable("Levels");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.MuscleImages.MuscleImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("MuscleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MuscleId");
+
+                    b.ToTable("MuscleImages");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Muscles.Muscle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -170,6 +216,17 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.HasIndex("ExerciseId");
 
                     b.ToTable("Videos");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.EquipmentImages.EquipmentImage", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Equipments.Equipment", "Equipment")
+                        .WithMany("EquipmentImages")
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Equipment");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.ExerciseEquipments.ExerciseEquipment", b =>
@@ -221,6 +278,17 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("Level");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.MuscleImages.MuscleImage", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Muscles.Muscle", "Muscle")
+                        .WithMany("MuscleImages")
+                        .HasForeignKey("MuscleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Muscle");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Videos.Video", b =>
                 {
                     b.HasOne("TunzWorkout.Domain.Entities.Exercises.Exercise", "Exercise")
@@ -234,6 +302,8 @@ namespace TunzWorkout.Infrastructure.Migrations
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Equipments.Equipment", b =>
                 {
+                    b.Navigation("EquipmentImages");
+
                     b.Navigation("ExerciseEquipments");
                 });
 
@@ -254,6 +324,8 @@ namespace TunzWorkout.Infrastructure.Migrations
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Muscles.Muscle", b =>
                 {
                     b.Navigation("ExerciseMuscles");
+
+                    b.Navigation("MuscleImages");
                 });
 #pragma warning restore 612, 618
         }

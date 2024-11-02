@@ -13,6 +13,10 @@ namespace TunzWorkout.Infrastructure.Data.Equipments
 
             builder.Property(x => x.Name).IsRequired();
             builder.Ignore(x => x.ImageFile);
+
+            builder.HasMany(x => x.ExerciseEquipments)
+                .WithOne(x => x.Equipment)
+                .HasForeignKey(x => x.EquipmentId);
         }
     }
 }

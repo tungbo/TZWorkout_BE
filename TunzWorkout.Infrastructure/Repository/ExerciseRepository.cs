@@ -29,9 +29,13 @@ namespace TunzWorkout.Infrastructure.Repository
             return false;
         }
 
-        public async Task<Exercise> ExerciseByIdAsync(Guid id)
+        public async Task<Exercise?> ExerciseByIdAsync(Guid id)
         {
-            return await _dbContext.Exercises.AsNoTracking().FirstOrDefaultAsync(exercise => exercise.Id == id);
+            return await _dbContext.Exercises.AsNoTracking()
+                .Include(x => x.Level)
+                .Include(x => x.ExerciseMuscles).ThenInclude(el => el.Muscle).ThenInclude(el => el.MuscleImages)
+                .Include(x => x.ExerciseEquipments).ThenInclude(el => el.Equipment).ThenInclude(el => el.EquipmentImages)
+                .FirstOrDefaultAsync(exercise => exercise.Id == id);
         }
 
         public async Task<bool> ExistByIdAsync(Guid id)
@@ -41,13 +45,17 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task<IEnumerable<Exercise>> GetAllAsync()
         {
-            return await _dbContext.Exercises.AsNoTracking().ToListAsync();
+            return await _dbContext.Exercises.AsNoTracking()
+                .Include(x => x.Level)
+                .Include(x => x.ExerciseMuscles).ThenInclude(el => el.Muscle).ThenInclude(el => el.MuscleImages)
+                .Include(x => x.ExerciseEquipments).ThenInclude(el => el.Equipment).ThenInclude(el => el.EquipmentImages)
+                .ToListAsync();
         }
 
-        public async Task<bool> UpdateAsync(Exercise exercise)
+        public Task<bool> UpdateAsync(Exercise exercise)
         {
             _dbContext.Exercises.Update(exercise);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

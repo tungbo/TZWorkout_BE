@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
 using TunzWorkout.Infrastructure.Data;
+using TunzWorkout.Infrastructure.Files;
 using TunzWorkout.Infrastructure.Repository;
 
 namespace TunzWorkout.Infrastructure
@@ -24,7 +25,13 @@ namespace TunzWorkout.Infrastructure
             services.AddScoped<IEquipmentRepository, EquipmentRepository>();
             services.AddScoped<ILevelRepository, LevelRepository>();
             services.AddScoped<IExerciseRepository, ExerciseRepository>();
+            services.AddScoped<IVideoRepository, VideoRepository>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IVideoFileService, VideoFileService>();
+            services.AddScoped<IExerciseEquipmentRepository, ExerciseEquipmentRepository>();
+            services.AddScoped<IExerciseMuscleRepository, ExerciseMuscleRepository>();
+            services.AddScoped<IMuscleImageRepository, MuscleImageRepository>();
+            services.AddScoped<IEquipmentImageRepository, EquipmentImageRepository>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
             return services;

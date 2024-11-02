@@ -13,6 +13,8 @@ namespace TunzWorkout.Infrastructure.Data.Muscles
 
             builder.Property(x => x.Name).IsRequired();
             builder.Ignore(x => x.ImageFile);
+
+            builder.HasMany(m => m.MuscleImages).WithOne(mi => mi.Muscle).HasForeignKey(mi => mi.MuscleId);
         }
     }
 }

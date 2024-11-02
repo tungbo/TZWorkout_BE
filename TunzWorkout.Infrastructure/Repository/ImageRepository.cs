@@ -41,10 +41,10 @@ namespace TunzWorkout.Infrastructure.Repository
             return await _dbContext.Images.AsNoTracking().FirstOrDefaultAsync(image => image.Id == id);
         }
 
-        public async Task<bool> UpdateAsync(Image image)
+        public Task<bool> UpdateAsync(Image image)
         {
             _dbContext.Images.Update(image);
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

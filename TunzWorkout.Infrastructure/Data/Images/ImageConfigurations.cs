@@ -14,6 +14,7 @@ namespace TunzWorkout.Infrastructure.Data.Images
             builder.Property(x => x.ImagePath).IsRequired();
             builder.Property(x => x.UploadDate).IsRequired();
             builder.Property(x => x.Type).IsRequired();
+            builder.Property(x => x.ImageableId).IsRequired();
         }
     }
 }

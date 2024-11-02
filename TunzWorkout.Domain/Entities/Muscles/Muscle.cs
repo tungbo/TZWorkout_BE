@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 using TunzWorkout.Domain.Entities.ExerciseMuscles;
+using TunzWorkout.Domain.Entities.MuscleImages;
 
 namespace TunzWorkout.Domain.Entities.Muscles
 {
@@ -13,5 +14,6 @@ namespace TunzWorkout.Domain.Entities.Muscles
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
         public ICollection<ExerciseMuscle> ExerciseMuscles { get; set; }
+        public ICollection<MuscleImage> MuscleImages { get; set; }
     }
 }
