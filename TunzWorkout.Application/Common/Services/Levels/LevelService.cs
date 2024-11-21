@@ -86,10 +86,8 @@ namespace TunzWorkout.Application.Common.Services.Levels
             {
                 return Error.Conflict(description: "Level name already exists");
             }
-
             existingLevel.Name = level.Name;
             existingLevel.Description = level.Description;
-
             await _levelRepository.UpdateAsync(existingLevel);
             await _unitOfWork.CommitChangesAsync();
             return existingLevel;

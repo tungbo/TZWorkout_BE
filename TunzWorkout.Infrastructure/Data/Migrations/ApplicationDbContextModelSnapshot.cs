@@ -113,29 +113,54 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.ToTable("Exercises");
                 });
 
-            modelBuilder.Entity("TunzWorkout.Domain.Entities.Images.Image", b =>
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ImageableId")
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("LevelId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UploadDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.HasIndex("LevelId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("FitnessProfiles");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Goals.Goal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Goals");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Levels.Level", b =>
@@ -193,6 +218,70 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Muscles");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.UserGoals.UserGoal", b =>
+                {
+                    b.Property<Guid>("FitnessProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GoalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("FitnessProfileId", "GoalId");
+
+                    b.HasIndex("GoalId");
+
+                    b.ToTable("UserGoals");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Videos.Video", b =>
@@ -278,6 +367,25 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("Level");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Levels.Level", "Level")
+                        .WithMany("FitnessProfiles")
+                        .HasForeignKey("LevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TunzWorkout.Domain.Entities.Users.User", "User")
+                        .WithOne("FitnessProfile")
+                        .HasForeignKey("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Level");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.MuscleImages.MuscleImage", b =>
                 {
                     b.HasOne("TunzWorkout.Domain.Entities.Muscles.Muscle", "Muscle")
@@ -287,6 +395,25 @@ namespace TunzWorkout.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Muscle");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.UserGoals.UserGoal", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", "FitnessProfile")
+                        .WithMany("UserGoals")
+                        .HasForeignKey("FitnessProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TunzWorkout.Domain.Entities.Goals.Goal", "Goal")
+                        .WithMany("UserGoals")
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FitnessProfile");
+
+                    b.Navigation("Goal");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Videos.Video", b =>
@@ -316,9 +443,21 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("Videos");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", b =>
+                {
+                    b.Navigation("UserGoals");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Goals.Goal", b =>
+                {
+                    b.Navigation("UserGoals");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Levels.Level", b =>
                 {
                     b.Navigation("Exercises");
+
+                    b.Navigation("FitnessProfiles");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Muscles.Muscle", b =>
@@ -326,6 +465,12 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("ExerciseMuscles");
 
                     b.Navigation("MuscleImages");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Users.User", b =>
+                {
+                    b.Navigation("FitnessProfile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

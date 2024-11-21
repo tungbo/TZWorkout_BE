@@ -6,7 +6,7 @@ namespace TunzWorkout.Application.Common.Interfaces
     {
         Task CreateAsync(MuscleImage muscleImage);
         Task DeleteByIdAsync(Guid id);
-        Task UpdateAsync(MuscleImage muscleImage);
+        Task<bool> UpdateAsync(MuscleImage muscleImage);
 
         Task<MuscleImage?> GetMuscleImageByMuscleIdAsync(Guid muscleId);
         Task<MuscleImage?> GetMuscleImageByIdAsync(Guid id);

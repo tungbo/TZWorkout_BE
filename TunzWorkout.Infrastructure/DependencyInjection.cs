@@ -20,8 +20,9 @@ namespace TunzWorkout.Infrastructure
                 options.UseSqlServer(connectionString);
             });
 
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserGoalRepository, UserGoalRepository>();
             services.AddScoped<IMuscleRepository, MuscleRepository>();
-            services.AddScoped<IImageRepository, ImageRepository>();
             services.AddScoped<IEquipmentRepository, EquipmentRepository>();
             services.AddScoped<ILevelRepository, LevelRepository>();
             services.AddScoped<IExerciseRepository, ExerciseRepository>();
@@ -32,6 +33,8 @@ namespace TunzWorkout.Infrastructure
             services.AddScoped<IExerciseMuscleRepository, ExerciseMuscleRepository>();
             services.AddScoped<IMuscleImageRepository, MuscleImageRepository>();
             services.AddScoped<IEquipmentImageRepository, EquipmentImageRepository>();
+            services.AddScoped<IGoalRepository, GoalRepository>();
+            services.AddScoped<IFitnessProfileRepository, FitnessProfileRepository>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
             return services;

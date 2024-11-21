@@ -3,6 +3,5 @@
     public interface IUnitOfWork
     {
         Task CommitChangesAsync();
-        Task BeginTransactionAsync();
     }
 }

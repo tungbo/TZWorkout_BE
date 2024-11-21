@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Levels;
 using TunzWorkout.Application.Common.Errors;
@@ -40,8 +41,7 @@ namespace TunzWorkout.Api.Controllers
             {
                 var response = success.MapToResponse();
                 return Ok(response);
-            },
-            errors => ErrorHandlingExtensions.HandleError(errors));
+            },Problem);
         }
 
         [HttpGet("{id:guid}")]

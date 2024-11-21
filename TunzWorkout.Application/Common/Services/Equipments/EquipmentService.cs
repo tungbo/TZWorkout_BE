@@ -171,7 +171,7 @@ namespace TunzWorkout.Application.Common.Services.Equipments
                 };
                 await _equipmentImageRepository.CreateAsync(equipmentImage);
             }
-            await _equipmentRepository.UpdateAsync(equipmentExist);
+            await _equipmentRepository.UpdateAsync(equipment);
             await _unitOfWork.CommitChangesAsync();
             var updatedEquipment = await _equipmentRepository.EquipmentByIdAsync(equipment.Id);
             return updatedEquipment is not null ? updatedEquipment : Error.NotFound(description: "Equipment not found.");

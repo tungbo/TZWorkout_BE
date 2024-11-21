@@ -15,6 +15,7 @@ namespace TunzWorkout.Infrastructure.Data.Levels
             builder.Property(x => x.Description);
 
             builder.HasMany(l => l.Exercises).WithOne(e => e.Level).HasForeignKey(e => e.LevelId);
+            builder.HasMany(l => l.FitnessProfiles).WithOne(fp => fp.Level).HasForeignKey(fp => fp.LevelId);
 
         }
     }

@@ -135,7 +135,6 @@ namespace TunzWorkout.Application.Common.Services.Muscles
             {
                 return Error.Conflict(description: "Muscle name already exists");
             }
-            muscleExist.Name = muscle.Name;
 
             if (muscle.ImageFile is not null)
             {
@@ -168,7 +167,7 @@ namespace TunzWorkout.Application.Common.Services.Muscles
                 };
                 await _muscleImageRepository.CreateAsync(muscleImage);
             }
-            await _muscleRepository.UpdateAsync(muscleExist);
+            await _muscleRepository.UpdateAsync(muscle);
             await _unitOfWork.CommitChangesAsync();
             var updatedMuscle = await _muscleRepository.MuscleByIdAsync(muscle.Id);
             return updatedMuscle is not null ? updatedMuscle : Error.NotFound("Muscle not found");

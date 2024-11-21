@@ -19,8 +19,7 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task DeleteByIdAsync(Guid id)
         {
-            var muscle = await _dbContext.MuscleImages.FindAsync(id);
-            _dbContext.MuscleImages.Remove(muscle);
+            await _dbContext.MuscleImages.Where(m => m.Id == id).ExecuteDeleteAsync();
         }
 
         public async Task<List<MuscleImage>> GetAllAsync()
@@ -38,10 +37,10 @@ namespace TunzWorkout.Infrastructure.Repository
             return await _dbContext.MuscleImages.AsNoTracking().FirstOrDefaultAsync(x => x.MuscleId == muscleId);
         }
 
-        public Task UpdateAsync(MuscleImage muscleImage)
+        public async Task<bool> UpdateAsync(MuscleImage muscleImage)
         {
             _dbContext.Update(muscleImage);
-            return Task.CompletedTask;
+            return await Task.FromResult(true);
         }
     }
 }

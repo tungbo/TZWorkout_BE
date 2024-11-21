@@ -19,8 +19,7 @@ namespace TunzWorkout.Infrastructure.Repository
 
         public async Task DeleteByIdAsync(Guid id)
         {
-            var euipmentImage = await _dbContext.EquipmentImages.FindAsync(id);
-            _dbContext.Remove(euipmentImage);
+            await _dbContext.EquipmentImages.Where(m => m.Id == id).ExecuteDeleteAsync();
         }
 
         public async Task<List<EquipmentImage>> GetAllAsync()

@@ -1,11 +1,19 @@
-﻿using TunzWorkout.Api.Models.Dtos.Equipments;
+﻿using TunzWorkout.Api.Models.Dtos.Authentication;
+using TunzWorkout.Api.Models.Dtos.Equipments;
 using TunzWorkout.Api.Models.Dtos.Exercises;
+using TunzWorkout.Api.Models.Dtos.FitnessProfiles;
+using TunzWorkout.Api.Models.Dtos.Goals;
 using TunzWorkout.Api.Models.Dtos.Levels;
 using TunzWorkout.Api.Models.Dtos.Muscles;
+using TunzWorkout.Api.Models.Dtos.Users;
+using TunzWorkout.Application.Commands.Authentication;
 using TunzWorkout.Domain.Entities.Equipments;
 using TunzWorkout.Domain.Entities.Exercises;
+using TunzWorkout.Domain.Entities.FitnessProfiles;
+using TunzWorkout.Domain.Entities.Goals;
 using TunzWorkout.Domain.Entities.Levels;
 using TunzWorkout.Domain.Entities.Muscles;
+using TunzWorkout.Domain.Entities.Users;
 
 namespace TunzWorkout.Api.Mapping
 {
@@ -197,6 +205,214 @@ namespace TunzWorkout.Api.Mapping
             };
         }
 
+        #endregion
+
+        #region Authentication
+
+        public static RegisterCommand MapToRegisterCommand(this RegisterRequest request)
+        {
+            return new RegisterCommand
+            {
+                Username = request.Username,
+                Email = request.Email,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                LevelId = request.LevelId,
+                Gender = request.Gender,
+                Height = request.Height,
+                Weight = request.Weight,
+                SelectedGoalIds = request.SelectedGoalIds,
+            };
+        }
+
+        public static RegisterRequest MapToRegisterRequest(this RegisterCommand command)
+        {
+            return new RegisterRequest
+            {
+                Username = command.Username,
+                Email = command.Email,
+                Password = command.Password,
+                FirstName = command.FirstName,
+                LastName = command.LastName,
+            };
+        }
+
+        public static LoginCommand MapToLoginCommand(this LoginRequest request)
+        {
+            return new LoginCommand
+            {
+                Email = request.Email,
+                Password = request.Password,
+            };
+        }
+
+        public static LoginRequest MapToLoginRequest(this LoginCommand command)
+        {
+            return new LoginRequest
+            {
+                Email = command.Email,
+                Password = command.Password,
+            };
+        }
+
+        public static AuthenticationResponse MapToAuthenticationResponse(this AuthenticationCommand authenticationCommand)
+        {
+            return new AuthenticationResponse
+            {
+                Email = authenticationCommand.Email,
+                Token = authenticationCommand.Token,
+                Expiration = authenticationCommand.Expiration,
+                RefreshToken = authenticationCommand.RefreshToken,
+                RefreshTokenExpiry = authenticationCommand.RefreshTokenExpiry,
+            };
+        }
+
+        public static TokenModelCommand MapToTokenModelCommand(this TokenModelRequest request)
+        {
+            return new TokenModelCommand
+            {
+                Token = request.Token,
+                RefreshToken = request.RefreshToken,
+            };
+        }
+
+        public static TokenModelRequest MapToTokenModelRequest(this TokenModelCommand command)
+        {
+            return new TokenModelRequest
+            {
+                Token = command.Token,
+                RefreshToken = command.RefreshToken,
+            };
+        }
+
+        #endregion
+
+        #region User
+
+        public static User MapToUser(this UpdateUserRequest request, Guid id)
+        {
+            return new User
+            {
+                Id = id,
+                Username = request.Username,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Role = request.Role,
+                IsActive = request.IsActive,
+                IsDeleted = request.IsDeleted,
+            };
+        }
+
+        public static UserResponse MapToResponse(this User user)
+        {
+            return new UserResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PasswordHash = user.PasswordHash,
+                CreateAt = user.CreateAt,
+                RefreshToken = user.RefreshToken,
+                RefreshTokenExpiry = user.RefreshTokenExpiry,
+                Role = user.Role,
+                IsActive = user.IsActive,
+                IsDeleted = user.IsDeleted,
+            };
+        }
+        public static UsersResponse MapToResponse(this IEnumerable<User> users)
+        {
+            return new UsersResponse
+            {
+                Items = users.Select(MapToResponse),
+            };
+        }
+
+        #endregion
+
+        #region Goal
+
+        public static Goal MapToGoal(this CreateGoalRequest request)
+        {
+            return new Goal
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Description = request.Description
+            };
+        }
+        public static Goal MapToGoal(this UpdateGoalRequest request, Guid id)
+        {
+            return new Goal
+            {
+                Id = id,
+                Name = request.Name,
+                Description = request.Description
+            };
+        }
+        public static GoalResponse MapToResponse(this Goal goal)
+        {
+            return new GoalResponse
+            {
+                Id = goal.Id,
+                Name = goal.Name,
+                Description = goal.Description
+            };
+        }
+        public static GoalsResponse MapToResponse(this IEnumerable<Goal> goals)
+        {
+            return new GoalsResponse
+            {
+                Items = goals.Select(MapToResponse)
+            };
+        }
+
+        #endregion
+
+        #region FitnessProfile
+
+        public static FitnessProfileResponse MapToResponse(this FitnessProfile fitnessProfile)
+        {
+            return new FitnessProfileResponse
+            {
+                Id = fitnessProfile.Id,
+                UserId = fitnessProfile.UserId,
+                LevelId = fitnessProfile.LevelId,
+                Height = fitnessProfile.Height,
+                Weight = fitnessProfile.Weight,
+                Gender = fitnessProfile.Gender,
+                SelectedGoalIds = fitnessProfile.UserGoals.Select(el => new GoalResponse
+                {
+                    Id = el.GoalId,
+                    Name = el.Goal.Name,
+                    Description = el.Goal.Description
+                }).ToList()
+            };
+        }
+
+        public static FitnessProfile MapToFitnessProfile(this UpdateFitnessProfileRequest request, Guid id)
+        {
+            return new FitnessProfile
+            {
+                Id = id,
+                UserId = request.UserId,
+                LevelId = request.LevelId,
+                Gender = request.Gender,
+                Height = request.Height,
+                Weight = request.Weight,
+                SelectedGoalIds = request.SelectedGoalIds
+            };
+        }
+
+        public static FitnessProfilesResponse MapToResponse(this IEnumerable<FitnessProfile> fitnessProfiles)
+        {
+            return new FitnessProfilesResponse
+            {
+                Items = fitnessProfiles.Select(MapToResponse)
+            };
+        }
         #endregion
     }
 }
