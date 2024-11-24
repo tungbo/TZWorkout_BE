@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TunzWorkout.Infrastructure.Data.Migrations
+namespace TunzWorkout.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class updateDb : Migration
+    public partial class addDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -117,6 +117,32 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     table.PrimaryKey("PK_Exercises", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Exercises_Levels_LevelId",
+                        column: x => x.LevelId,
+                        principalTable: "Levels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Workouts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LevelId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GoalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Workouts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Workouts_Goals_GoalId",
+                        column: x => x.GoalId,
+                        principalTable: "Goals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Workouts_Levels_LevelId",
                         column: x => x.LevelId,
                         principalTable: "Levels",
                         principalColumn: "Id",
@@ -240,6 +266,28 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Rounds",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Set = table.Column<int>(type: "int", nullable: false),
+                    Rest = table.Column<int>(type: "int", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
+                    WorkoutId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rounds", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rounds_Workouts_WorkoutId",
+                        column: x => x.WorkoutId,
+                        principalTable: "Workouts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserGoals",
                 columns: table => new
                 {
@@ -261,6 +309,34 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                         principalTable: "Goals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoundExercises",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoundId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExerciseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
+                    Reps = table.Column<int>(type: "int", nullable: false),
+                    Rest = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoundExercises", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoundExercises_Exercises_ExerciseId",
+                        column: x => x.ExerciseId,
+                        principalTable: "Exercises",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RoundExercises_Rounds_RoundId",
+                        column: x => x.RoundId,
+                        principalTable: "Rounds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -300,6 +376,21 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                 column: "MuscleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoundExercises_ExerciseId",
+                table: "RoundExercises",
+                column: "ExerciseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoundExercises_RoundId",
+                table: "RoundExercises",
+                column: "RoundId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rounds_WorkoutId",
+                table: "Rounds",
+                column: "WorkoutId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserGoals_GoalId",
                 table: "UserGoals",
                 column: "GoalId");
@@ -308,6 +399,16 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                 name: "IX_Videos_ExerciseId",
                 table: "Videos",
                 column: "ExerciseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Workouts_GoalId",
+                table: "Workouts",
+                column: "GoalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Workouts_LevelId",
+                table: "Workouts",
+                column: "LevelId");
         }
 
         /// <inheritdoc />
@@ -326,6 +427,9 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                 name: "MuscleImages");
 
             migrationBuilder.DropTable(
+                name: "RoundExercises");
+
+            migrationBuilder.DropTable(
                 name: "UserGoals");
 
             migrationBuilder.DropTable(
@@ -338,16 +442,22 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                 name: "Muscles");
 
             migrationBuilder.DropTable(
-                name: "FitnessProfiles");
+                name: "Rounds");
 
             migrationBuilder.DropTable(
-                name: "Goals");
+                name: "FitnessProfiles");
 
             migrationBuilder.DropTable(
                 name: "Exercises");
 
             migrationBuilder.DropTable(
+                name: "Workouts");
+
+            migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Goals");
 
             migrationBuilder.DropTable(
                 name: "Levels");

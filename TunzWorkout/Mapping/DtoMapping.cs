@@ -5,7 +5,10 @@ using TunzWorkout.Api.Models.Dtos.FitnessProfiles;
 using TunzWorkout.Api.Models.Dtos.Goals;
 using TunzWorkout.Api.Models.Dtos.Levels;
 using TunzWorkout.Api.Models.Dtos.Muscles;
+using TunzWorkout.Api.Models.Dtos.RoundExercises;
+using TunzWorkout.Api.Models.Dtos.Rounds;
 using TunzWorkout.Api.Models.Dtos.Users;
+using TunzWorkout.Api.Models.Dtos.Workouts;
 using TunzWorkout.Application.Commands.Authentication;
 using TunzWorkout.Domain.Entities.Equipments;
 using TunzWorkout.Domain.Entities.Exercises;
@@ -13,7 +16,10 @@ using TunzWorkout.Domain.Entities.FitnessProfiles;
 using TunzWorkout.Domain.Entities.Goals;
 using TunzWorkout.Domain.Entities.Levels;
 using TunzWorkout.Domain.Entities.Muscles;
+using TunzWorkout.Domain.Entities.RoundExercises;
+using TunzWorkout.Domain.Entities.Rounds;
 using TunzWorkout.Domain.Entities.Users;
+using TunzWorkout.Domain.Entities.Workouts;
 
 namespace TunzWorkout.Api.Mapping
 {
@@ -155,7 +161,7 @@ namespace TunzWorkout.Api.Mapping
                 LevelId = request.LevelId,
                 HasEquipment = request.HasEquipment,
                 VideoFile = request.VideoFile,
-                SelectedEquipmentIds = request.SelectedEquipmentIds,
+                SelectedEquipmentIds = (request.SelectedEquipmentIds is null) ? new List<Guid>() : request.SelectedEquipmentIds,
                 SelectedMuscleIds = request.SelectedMuscleIds,
             };
         }
@@ -168,7 +174,7 @@ namespace TunzWorkout.Api.Mapping
                 LevelId = request.LevelId,
                 HasEquipment = request.HasEquipment,
                 VideoFile = request.VideoFile,
-                SelectedEquipmentIds = request.SelectedEquipmentIds,
+                SelectedEquipmentIds = (request.SelectedEquipmentIds is null) ? new List<Guid>() : request.SelectedEquipmentIds,
                 SelectedMuscleIds = request.SelectedMuscleIds,
             };
         }
@@ -180,6 +186,7 @@ namespace TunzWorkout.Api.Mapping
                 Name = exercise.Name,
                 LevelName = exercise.Level.Name,
                 HasEquipment = exercise.HasEquipment,
+                VideoUrl = (exercise.Videos != null) ? string.Join(",", exercise.Videos.Select(x => x.VideoPath)) : string.Empty,
 
                 SelectedMuscles = exercise.ExerciseMuscles.Select(el => new MuscleResponse
                 {
@@ -411,6 +418,113 @@ namespace TunzWorkout.Api.Mapping
             return new FitnessProfilesResponse
             {
                 Items = fitnessProfiles.Select(MapToResponse)
+            };
+        }
+        #endregion
+
+        #region Workout
+
+        public static Workout MapToWorkout(this CreateWorkoutRequest request)
+        {
+            return new Workout
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                LevelId = request.LevelId,
+                GoalId = request.GoalId,
+                Rounds = request.RoundRequests.Select(r => new Round
+                {
+                    Id = Guid.NewGuid(),
+                    Name = r.Name,
+                    Set = r.Set,
+                    Rest = r.Rest,
+                    Order = r.Order,
+                    RoundExercises = r.RoundExerciseRequests.Select(re => new RoundExercise
+                    {
+                        Id = Guid.NewGuid(),
+                        ExerciseId = re.ExerciseId,
+                        Reps = re.Reps,
+                        Order = re.Order,
+                        Rest = re.Rest,
+                    }).ToList(),
+                }).ToList(),
+            };
+        }
+
+        public static Workout MapToWorkout(this UpdateWorkoutRequest request, Guid id)
+        {
+            return new Workout
+            {
+                Id = id,
+                Name = request.Name,
+                LevelId = request.LevelId,
+                GoalId = request.GoalId,
+                Rounds = request.RoundRequests.Select(r => new Round
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Set = r.Set,
+                    Rest = r.Rest,
+                    Order = r.Order,
+                    WorkoutId = id,
+                    RoundExercises = r.RoundExerciseRequests.Select(re => new RoundExercise
+                    {
+                        Id = re.Id,
+                        RoundId = re.RoundId,
+                        ExerciseId = re.ExerciseId,
+                        Reps = re.Reps,
+                        Order = re.Order,
+                        Rest = re.Rest,
+                    }).ToList(),
+                }).ToList(),
+            };
+        }
+
+        public static WorkoutResponse MapToResponse(this Workout workout)
+        {
+            return new WorkoutResponse
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                LevelId = workout.LevelId,
+                GoalId = workout.GoalId,
+                RoundResponses = workout.Rounds.Select(r => new RoundResponse
+                {
+                    Name = r.Name,
+                    Set = r.Set,
+                    Rest = r.Rest,
+                    Order = r.Order,
+                    RoundExerciseResponses = r.RoundExercises.Select(re => new RoundExerciseResponse
+                    {
+                        RoundId = re.RoundId,
+                        ExerciseId = re.ExerciseId,
+                        Order = re.Order,
+                        Reps = re.Reps,
+                        Rest = re.Rest,
+                    }).ToList(),
+                }).ToList(),
+            };
+        }
+
+        public static WorkoutsResponse MapToResponse(this IEnumerable<Workout> workouts)
+        {
+            return new WorkoutsResponse
+            {
+                Workouts = workouts.Select(MapToResponse),
+            };
+        }
+
+        #endregion
+
+        #region Round
+        public static Round MapToRound(this CreateRoundRequest request)
+        {
+            return new Round
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Set = request.Set,
+                Rest = request.Rest,
             };
         }
         #endregion

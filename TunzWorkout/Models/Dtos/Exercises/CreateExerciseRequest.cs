@@ -8,6 +8,6 @@
         public IFormFile? VideoFile { get; set; }
 
         public List<Guid> SelectedMuscleIds { get; set; }
-        public List<Guid> SelectedEquipmentIds { get; set; }
+        public List<Guid> SelectedEquipmentIds { get; set; } = new List<Guid>();
     }
 }

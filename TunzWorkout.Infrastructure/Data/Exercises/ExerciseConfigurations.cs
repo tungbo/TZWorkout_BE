@@ -20,6 +20,7 @@ namespace TunzWorkout.Infrastructure.Data.Exercises
                    .HasForeignKey(e => e.LevelId);
 
             builder.HasMany(e => e.Videos).WithOne(v => v.Exercise).HasForeignKey(v => v.ExerciseId);
+            builder.HasMany(e => e.RoundExercises).WithOne(re => re.Exercise).HasForeignKey(re => re.ExerciseId);
         }
     }
 }

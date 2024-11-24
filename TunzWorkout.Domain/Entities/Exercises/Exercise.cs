@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using TunzWorkout.Domain.Entities.ExerciseEquipments;
 using TunzWorkout.Domain.Entities.ExerciseMuscles;
 using TunzWorkout.Domain.Entities.Levels;
+using TunzWorkout.Domain.Entities.RoundExercises;
 using TunzWorkout.Domain.Entities.Videos;
 
 namespace TunzWorkout.Domain.Entities.Exercises
@@ -30,5 +31,6 @@ namespace TunzWorkout.Domain.Entities.Exercises
         public ICollection<Video> Videos { get; set; }
         public ICollection<ExerciseMuscle> ExerciseMuscles { get; set; } = new List<ExerciseMuscle>();
         public ICollection<ExerciseEquipment> ExerciseEquipments { get; set; } = new List<ExerciseEquipment>();
+        public ICollection<RoundExercise> RoundExercises { get; set;} = new List<RoundExercise>();
     }
 }

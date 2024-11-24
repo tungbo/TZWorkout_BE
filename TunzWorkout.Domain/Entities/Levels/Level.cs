@@ -1,5 +1,6 @@
 ﻿using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Domain.Entities.FitnessProfiles;
+using TunzWorkout.Domain.Entities.Workouts;
 
 namespace TunzWorkout.Domain.Entities.Levels
 {
@@ -12,6 +13,7 @@ namespace TunzWorkout.Domain.Entities.Levels
 
         public ICollection<Exercise> Exercises { get; set; }// Quan hệ với Exercise
         public ICollection<FitnessProfile> FitnessProfiles { get; set; }// Quan hệ với FitnessProfile
+        public ICollection<Workout> Workouts { get; set; }
 
     }
 }

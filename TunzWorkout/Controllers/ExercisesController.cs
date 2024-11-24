@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Exercises;
-using TunzWorkout.Application.Common.Errors;
 using TunzWorkout.Application.Common.Services.Exercises;
 
 namespace TunzWorkout.Api.Controllers

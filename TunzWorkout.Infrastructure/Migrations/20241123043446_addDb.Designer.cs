@@ -9,11 +9,11 @@ using TunzWorkout.Infrastructure.Data;
 
 #nullable disable
 
-namespace TunzWorkout.Infrastructure.Data.Migrations
+namespace TunzWorkout.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241112043517_updateDb")]
-    partial class updateDb
+    [Migration("20241123043446_addDb")]
+    partial class addDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -223,6 +223,65 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.ToTable("Muscles");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.RoundExercises.RoundExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExerciseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Reps")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rest")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("RoundId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("RoundId");
+
+                    b.ToTable("RoundExercises");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Rounds.Round", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rest")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Set")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WorkoutId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutId");
+
+                    b.ToTable("Rounds");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.UserGoals.UserGoal", b =>
                 {
                     b.Property<Guid>("FitnessProfileId")
@@ -308,6 +367,31 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.HasIndex("ExerciseId");
 
                     b.ToTable("Videos");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GoalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LevelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoalId");
+
+                    b.HasIndex("LevelId");
+
+                    b.ToTable("Workouts");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.EquipmentImages.EquipmentImage", b =>
@@ -400,6 +484,36 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.Navigation("Muscle");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.RoundExercises.RoundExercise", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Exercises.Exercise", "Exercise")
+                        .WithMany("RoundExercises")
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TunzWorkout.Domain.Entities.Rounds.Round", "Round")
+                        .WithMany("RoundExercises")
+                        .HasForeignKey("RoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("Round");
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Rounds.Round", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Workouts.Workout", "Workout")
+                        .WithMany("Rounds")
+                        .HasForeignKey("WorkoutId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Workout");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.UserGoals.UserGoal", b =>
                 {
                     b.HasOne("TunzWorkout.Domain.Entities.FitnessProfiles.FitnessProfile", "FitnessProfile")
@@ -430,6 +544,25 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.Navigation("Exercise");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Goals.Goal", "Goal")
+                        .WithMany("Workouts")
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TunzWorkout.Domain.Entities.Levels.Level", "Level")
+                        .WithMany("Workouts")
+                        .HasForeignKey("LevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Goal");
+
+                    b.Navigation("Level");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Equipments.Equipment", b =>
                 {
                     b.Navigation("EquipmentImages");
@@ -443,6 +576,8 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
 
                     b.Navigation("ExerciseMuscles");
 
+                    b.Navigation("RoundExercises");
+
                     b.Navigation("Videos");
                 });
 
@@ -454,6 +589,8 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Goals.Goal", b =>
                 {
                     b.Navigation("UserGoals");
+
+                    b.Navigation("Workouts");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Levels.Level", b =>
@@ -461,6 +598,8 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.Navigation("Exercises");
 
                     b.Navigation("FitnessProfiles");
+
+                    b.Navigation("Workouts");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Muscles.Muscle", b =>
@@ -470,10 +609,20 @@ namespace TunzWorkout.Infrastructure.Data.Migrations
                     b.Navigation("MuscleImages");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Rounds.Round", b =>
+                {
+                    b.Navigation("RoundExercises");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Users.User", b =>
                 {
                     b.Navigation("FitnessProfile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
+                {
+                    b.Navigation("Rounds");
                 });
 #pragma warning restore 612, 618
         }

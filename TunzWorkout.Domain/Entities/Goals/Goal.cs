@@ -1,4 +1,5 @@
 ﻿using TunzWorkout.Domain.Entities.UserGoals;
+using TunzWorkout.Domain.Entities.Workouts;
 
 namespace TunzWorkout.Domain.Entities.Goals
 {
@@ -9,5 +10,6 @@ namespace TunzWorkout.Domain.Entities.Goals
         public string Description { get; set; }
 
         public ICollection<UserGoal> UserGoals { get; set; }
+        public ICollection<Workout> Workouts { get; set; }
     }
 }

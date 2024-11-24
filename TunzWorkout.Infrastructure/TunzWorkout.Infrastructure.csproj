@@ -20,4 +20,8 @@
     <ProjectReference Include="..\TunzWorkout.Domain\TunzWorkout.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Uploads\Videos\" />
+  </ItemGroup>
+
 </Project>

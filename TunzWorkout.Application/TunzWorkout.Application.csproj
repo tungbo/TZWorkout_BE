@@ -18,4 +18,8 @@
     <ProjectReference Include="..\TunzWorkout.Domain\TunzWorkout.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Services\RoundExercises\" />
+  </ItemGroup>
+
 </Project>

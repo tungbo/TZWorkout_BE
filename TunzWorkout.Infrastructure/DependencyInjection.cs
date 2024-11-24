@@ -35,6 +35,9 @@ namespace TunzWorkout.Infrastructure
             services.AddScoped<IEquipmentImageRepository, EquipmentImageRepository>();
             services.AddScoped<IGoalRepository, GoalRepository>();
             services.AddScoped<IFitnessProfileRepository, FitnessProfileRepository>();
+            services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+            services.AddScoped<IRoundRepository, RoundRepository>();
+            services.AddScoped<IRoundExerciseRepository, RoundExerciseRepository>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 
             return services;
