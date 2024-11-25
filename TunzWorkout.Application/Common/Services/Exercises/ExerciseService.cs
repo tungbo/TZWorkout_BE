@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using FluentValidation;
+using TunzWorkout.Application.Common.Filters;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Files;
 using TunzWorkout.Domain.Entities.ExerciseEquipments;
@@ -21,7 +22,8 @@ namespace TunzWorkout.Application.Common.Services.Exercises
         private readonly IExerciseEquipmentRepository _exerciseEquipmentRepository;
         private readonly IExerciseMuscleRepository _exerciseMuscleRepository;
         private readonly IValidator<Exercise> _exerciseValidator;
-        public ExerciseService(IExerciseRepository exerciseRepository, IUnitOfWork unitOfWork, IMuscleRepository muscleRepository, IEquipmentRepository equipmentRepository, IVideoRepository videoRepository, IValidator<Exercise> exerciseValidator, IVideoFileService videoFileService, ILevelRepository levelRepository, IExerciseEquipmentRepository exerciseEquipmentRepository, IExerciseMuscleRepository exerciseMuscleRepository)
+        private readonly IValidator<GetAllExercisesOptions> _allExercisesOptionsValidator;
+        public ExerciseService(IExerciseRepository exerciseRepository, IUnitOfWork unitOfWork, IMuscleRepository muscleRepository, IEquipmentRepository equipmentRepository, IVideoRepository videoRepository, IValidator<Exercise> exerciseValidator, IValidator<GetAllExercisesOptions> getAllExOpValidator, IVideoFileService videoFileService, ILevelRepository levelRepository, IExerciseEquipmentRepository exerciseEquipmentRepository, IExerciseMuscleRepository exerciseMuscleRepository)
         {
             _exerciseMuscleRepository = exerciseMuscleRepository;
             _exerciseEquipmentRepository = exerciseEquipmentRepository;
@@ -30,6 +32,7 @@ namespace TunzWorkout.Application.Common.Services.Exercises
             _muscleRepository = muscleRepository;
             _equipmentRepository = equipmentRepository;
             _exerciseValidator = exerciseValidator;
+            _allExercisesOptionsValidator = getAllExOpValidator;
             _videoRepository = videoRepository;
             _videoFileService = videoFileService;
             _levelRepository = levelRepository;
@@ -143,9 +146,14 @@ namespace TunzWorkout.Application.Common.Services.Exercises
             return exercise;
         }
 
-        public async Task<ErrorOr<IEnumerable<Exercise>>> GetAllAsync()
+        public async Task<ErrorOr<IEnumerable<Exercise>>> GetAllAsync(GetAllExercisesOptions options)
         {
-            var exercises = await _exerciseRepository.GetAllAsync();
+            var validationResult = await _allExercisesOptionsValidator.ValidateAsync(options);
+            if (!validationResult.IsValid)
+            {
+                return validationResult.Errors.ConvertAll(error => Error.Validation(code: error.PropertyName, description: error.ErrorMessage));
+            }
+            var exercises = await _exerciseRepository.GetAllAsync(options);
             if(exercises is null||!exercises.Any())
             {
                 return Error.NotFound(description: "No exercise found");
@@ -275,6 +283,11 @@ namespace TunzWorkout.Application.Common.Services.Exercises
             {
                 await _exerciseEquipmentRepository.AddRangeAsync(equipmentsToAdd);
             }
+        }
+
+        public async Task<int> CountAsync(string? name)
+        {
+            return await _exerciseRepository.CountAsync(name);
         }
     }
 

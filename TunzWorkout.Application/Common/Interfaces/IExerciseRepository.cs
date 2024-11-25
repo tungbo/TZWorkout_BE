@@ -1,4 +1,5 @@
-﻿using TunzWorkout.Domain.Entities.Exercises;
+﻿using TunzWorkout.Application.Common.Filters;
+using TunzWorkout.Domain.Entities.Exercises;
 
 namespace TunzWorkout.Application.Common.Interfaces
 {
@@ -9,7 +10,8 @@ namespace TunzWorkout.Application.Common.Interfaces
         Task<bool> DeleteByIdAsync(Guid id);
         Task<bool> ExistByIdAsync(Guid id);
 
+        Task<int> CountAsync(string? name);
         Task<Exercise?> ExerciseByIdAsync(Guid id);
-        Task<IEnumerable<Exercise>> GetAllAsync();
+        Task<IEnumerable<Exercise>> GetAllAsync(GetAllExercisesOptions options);
     }
 }

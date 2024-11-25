@@ -23,10 +23,12 @@ namespace TunzWorkout.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery]GetAllExercisesRequest request)
         {
-            var result = await _exerciseService.GetAllAsync();
-            return result.Match(exercises => Ok(exercises.MapToResponse()), Problem);
+            var options = request.MapToOptions();
+            var result = await _exerciseService.GetAllAsync(options);
+            var exCount = await _exerciseService.CountAsync(request.Name);
+            return result.Match(exercises => Ok(exercises.MapToResponse(request.Page, request.PageSize, exCount)), Problem);
         }
 
         [HttpGet("{id:guid}")]

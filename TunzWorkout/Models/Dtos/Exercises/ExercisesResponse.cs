@@ -1,7 +1,8 @@
-﻿namespace TunzWorkout.Api.Models.Dtos.Exercises
+﻿using TunzWorkout.Api.Models.Dtos.Pages;
+
+namespace TunzWorkout.Api.Models.Dtos.Exercises
 {
-    public class ExercisesResponse
+    public class ExercisesResponse : PagedResponse<ExerciseResponse>
     {
-        public IEnumerable<ExerciseResponse> Items { get; set; } = new List<ExerciseResponse>();
     }
 }

@@ -10,6 +10,7 @@ using TunzWorkout.Api.Models.Dtos.Rounds;
 using TunzWorkout.Api.Models.Dtos.Users;
 using TunzWorkout.Api.Models.Dtos.Workouts;
 using TunzWorkout.Application.Commands.Authentication;
+using TunzWorkout.Application.Common.Filters;
 using TunzWorkout.Domain.Entities.Equipments;
 using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Domain.Entities.FitnessProfiles;
@@ -204,11 +205,29 @@ namespace TunzWorkout.Api.Mapping
             };
         }
 
-        public static ExercisesResponse MapToResponse(this IEnumerable<Exercise> exercises)
+        public static ExercisesResponse MapToResponse(this IEnumerable<Exercise> exercises, int page, int pageSize, int totalCount)
         {
             return new ExercisesResponse
             {
                 Items = exercises.Select(MapToResponse),
+                Page = page,
+                PageSize = pageSize,
+                Total = totalCount,
+            };
+        }
+
+        public static GetAllExercisesOptions MapToOptions(this GetAllExercisesRequest request)
+        {
+            return new GetAllExercisesOptions
+            {
+                Name = request.Name,
+                LevelId = request.LevelId,
+                MuscleId = request.MuscleId,
+                EquipmentId = request.EquipmentId,
+                SortField = request.SortBy?.Trim('+', '-'),
+                SortOrder = request.SortBy is null ? SortOrder.Unsorted : request.SortBy.StartsWith('-') ? SortOrder.Descending : SortOrder.Ascending,
+                Page = request.Page,
+                PageSize = request.PageSize,
             };
         }
 
@@ -528,5 +547,6 @@ namespace TunzWorkout.Api.Mapping
             };
         }
         #endregion
+
     }
 }

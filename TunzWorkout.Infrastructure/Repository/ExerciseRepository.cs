@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TunzWorkout.Application.Common.Filters;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Infrastructure.Data;
@@ -12,6 +13,8 @@ namespace TunzWorkout.Infrastructure.Repository
         {
             _dbContext = dbContext;
         }
+
+
         public async Task<bool> CreateAsync(Exercise exercise)
         {
             await _dbContext.Exercises.AddAsync(exercise);
@@ -64,7 +67,7 @@ namespace TunzWorkout.Infrastructure.Repository
             return await _dbContext.Exercises.AsNoTracking().AnyAsync(exercise => exercise.Id == id);
         }
 
-        public async Task<IEnumerable<Exercise>> GetAllAsync()
+        public async Task<IEnumerable<Exercise>> GetAllAsync(GetAllExercisesOptions options)
         {
             //return await _dbContext.Exercises
             //    .Include(x => x.Level)
@@ -72,7 +75,38 @@ namespace TunzWorkout.Infrastructure.Repository
             //    .Include(x => x.ExerciseMuscles).ThenInclude(el => el.Muscle).ThenInclude(el => el.MuscleImages)
             //    .Include(x => x.ExerciseEquipments).ThenInclude(el => el.Equipment).ThenInclude(el => el.EquipmentImages)
             //    .AsNoTracking().ToListAsync();
-            var exercises = await _dbContext.Exercises.AsNoTracking().ToListAsync();
+
+            var query = _dbContext.Exercises.AsNoTracking().AsQueryable();
+
+            if(!string.IsNullOrWhiteSpace(options.Name))
+            {
+                query = query.Where(e => e.Name.Contains(options.Name));
+            }
+            if(options.LevelId.HasValue)
+            {
+                query = query.Where(e => e.LevelId == options.LevelId);
+            }
+            if (options.MuscleId.HasValue)
+            {
+                query = query.Where(e => e.ExerciseMuscles.Any(em => em.MuscleId == options.MuscleId));
+            }
+            if (options.EquipmentId.HasValue)
+            {
+                query = query.Where(e => e.ExerciseEquipments.Any(ee => ee.EquipmentId == options.EquipmentId));
+            }
+            if (!string.IsNullOrWhiteSpace(options.SortField))
+            {
+                query = options.SortOrder switch
+                {
+                    SortOrder.Ascending => query.OrderBy(e => e.Name),
+                    SortOrder.Descending => query.OrderByDescending(e => e.Name),
+                    _ => query
+                };
+            }
+
+            query = query.Skip((options.Page - 1) * options.PageSize).Take(options.PageSize);
+
+            var exercises = await query.ToListAsync();
 
             var exerciseIds = exercises.Select(e => e.Id).ToList();
             var exerciseLevels = exercises.Select(e => e.LevelId).ToList();
@@ -111,6 +145,17 @@ namespace TunzWorkout.Infrastructure.Repository
             }
 
             return exercises;
+        }
+        public async Task<int> CountAsync(string? name)
+        {
+            var query = _dbContext.Exercises.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(e => e.Name.Contains(name));
+            }
+            var totalCount = await query.CountAsync();
+            return totalCount;
         }
 
         public Task<bool> UpdateAsync(Exercise exercise)

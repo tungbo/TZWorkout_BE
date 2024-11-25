@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TunzWorkout.Application.Commands.Authentication;
+using TunzWorkout.Application.Common.Filters;
 using TunzWorkout.Application.Common.Services.Authentication;
 using TunzWorkout.Application.Common.Services.Equipments;
 using TunzWorkout.Application.Common.Services.Exercises;
@@ -54,6 +55,7 @@ namespace TunzWorkout.Application
             services.AddScoped<IValidator<Muscle>, MuscleValidator>();
             services.AddScoped<IValidator<Equipment>, EquipmentValidator>();
             services.AddScoped<IValidator<Exercise>, ExerciseValidator>();
+            services.AddScoped<IValidator<GetAllExercisesOptions>, GetAllExercisesOptionsValidator>();
             services.AddScoped<IValidator<User>, UserValidator>();
             services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
             services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
