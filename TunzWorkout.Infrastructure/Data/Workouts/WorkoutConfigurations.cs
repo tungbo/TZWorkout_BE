@@ -15,6 +15,7 @@ namespace TunzWorkout.Infrastructure.Data.Workouts
             builder.HasOne(w => w.Level).WithMany(l => l.Workouts).HasForeignKey(w => w.LevelId);
             builder.HasOne(w => w.Goal).WithMany(g => g.Workouts).HasForeignKey(w => w.GoalId);
             builder.HasMany(w => w.Rounds).WithOne(r => r.Workout).HasForeignKey(r => r.WorkoutId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(w => w.Wishlists).WithOne(wl => wl.Workout).HasForeignKey(wl => wl.WorkoutId);
         }
     }
 }

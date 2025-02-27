@@ -47,7 +47,7 @@ namespace TunzWorkout.Api.Controllers
 
         [HttpPut("{id:guid}")]
         [RequestSizeLimit(50 * 1024 * 1024)]
-        public async Task<IActionResult> UpdateExercise([FromForm] UpdateExerciseRequest request, [FromRoute] Guid id)
+        public async Task<IActionResult> UpdateExercise(UpdateExerciseRequest request, [FromRoute] Guid id)
         {
             var toExercise = request.MapToExercise(id);
             var result = await _exerciseService.UpdateAsync(toExercise);

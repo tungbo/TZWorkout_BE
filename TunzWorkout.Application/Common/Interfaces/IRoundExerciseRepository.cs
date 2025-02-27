@@ -7,6 +7,7 @@ namespace TunzWorkout.Application.Common.Interfaces
         Task CreateAsync(RoundExercise roundExercise);
         Task DeleteByIdAsync(Guid id);
         Task DeleteAllByRoundId(Guid roundId);
+        Task DeleteRoundExAsync(Guid id);
         Task<bool> UpdateAsync(RoundExercise roundExercise);
 
         Task<IEnumerable<RoundExercise>> GetAllByRoundId(Guid roundId);

@@ -9,7 +9,6 @@ namespace TunzWorkout.Api.Models.Dtos.Rounds
         public int Set { get; set; }
         public int Rest { get; set; }
         public int Order { get; set; }
-        public Guid WorkoutId { get; set; }
         public List<UpdateRoundExerciseRequest> RoundExerciseRequests { get; set; } = new List<UpdateRoundExerciseRequest>();
     }
 }

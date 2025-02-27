@@ -229,6 +229,7 @@ namespace TunzWorkout.Application.Common.Services.Exercises
                 };
                 // create video ? keep : remove videFile
                 await _videoRepository.CreateAsync(video);
+                await _unitOfWork.CommitChangesAsync();
             }
             #endregion
 

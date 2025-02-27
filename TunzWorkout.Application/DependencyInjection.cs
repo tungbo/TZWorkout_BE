@@ -11,6 +11,7 @@ using TunzWorkout.Application.Common.Services.Levels;
 using TunzWorkout.Application.Common.Services.Muscles;
 using TunzWorkout.Application.Common.Services.Rounds;
 using TunzWorkout.Application.Common.Services.Users;
+using TunzWorkout.Application.Common.Services.Wishlists;
 using TunzWorkout.Application.Common.Services.Workouts;
 using TunzWorkout.Application.Common.Validators.Equipments;
 using TunzWorkout.Application.Common.Validators.Exercises;
@@ -39,6 +40,7 @@ namespace TunzWorkout.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.AddScoped<IWishlistService, WishlistService>();
             services.AddScoped<IWorkoutService, WorkoutService>();
             services.AddScoped<IRoundService, RoundService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();

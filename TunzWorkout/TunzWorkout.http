@@ -1,6 +1,6 @@
-@TunzWorkout_HostAddress = http://localhost:5043
+@TunzWorkout_HostAddress = https://localhost:7271/api/User
 
-GET {{TunzWorkout_HostAddress}}/weatherforecast/
+GET {{TunzWorkout_HostAddress}}
 Accept: application/json
 
 ###

@@ -23,6 +23,11 @@ namespace TunzWorkout.Infrastructure.Repository
             return await _dbContext.Users.AsNoTracking().AnyAsync(x => x.Email == email);
         }
 
+        public async Task<bool> ExistByIdAsync(Guid id)
+        {
+            return await _dbContext.Users.AsNoTracking().AnyAsync(x => x.Id == id);
+        }
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _dbContext.Users.AsNoTracking().ToListAsync();

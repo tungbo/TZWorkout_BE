@@ -8,6 +8,7 @@ using TunzWorkout.Api.Models.Dtos.Muscles;
 using TunzWorkout.Api.Models.Dtos.RoundExercises;
 using TunzWorkout.Api.Models.Dtos.Rounds;
 using TunzWorkout.Api.Models.Dtos.Users;
+using TunzWorkout.Api.Models.Dtos.Wishlists;
 using TunzWorkout.Api.Models.Dtos.Workouts;
 using TunzWorkout.Application.Commands.Authentication;
 using TunzWorkout.Application.Common.Filters;
@@ -20,6 +21,7 @@ using TunzWorkout.Domain.Entities.Muscles;
 using TunzWorkout.Domain.Entities.RoundExercises;
 using TunzWorkout.Domain.Entities.Rounds;
 using TunzWorkout.Domain.Entities.Users;
+using TunzWorkout.Domain.Entities.Wishlists;
 using TunzWorkout.Domain.Entities.Workouts;
 
 namespace TunzWorkout.Api.Mapping
@@ -58,7 +60,7 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = muscle.Id,
                 Name = muscle.Name,
-                ImageUrl = (muscle.MuscleImages != null) ? (string.Join(",", muscle.MuscleImages.Select(x => x.ImagePath))) : (string.Empty),
+                ImageUrl = (muscle.MuscleImages != null) ? (string.Join(",", muscle.MuscleImages.Select(x => x.ImagePath.Replace("\\","/")))) : (string.Empty),
             };
         }
         public static MusclesResponse MapToResponse(this IEnumerable<Muscle> muscles)
@@ -187,20 +189,20 @@ namespace TunzWorkout.Api.Mapping
                 Name = exercise.Name,
                 LevelName = exercise.Level.Name,
                 HasEquipment = exercise.HasEquipment,
-                VideoUrl = (exercise.Videos != null) ? string.Join(",", exercise.Videos.Select(x => x.VideoPath)) : string.Empty,
+                VideoUrl = (exercise.Videos != null) ? string.Join(",", exercise.Videos.Select(x => x.VideoPath.Replace("\\", "/"))) : string.Empty,
 
                 SelectedMuscles = exercise.ExerciseMuscles.Select(el => new MuscleResponse
                 {
                     Id = el.MuscleId,
                     Name = el.Muscle.Name,
-                    ImageUrl = el.Muscle.MuscleImages != null ? string.Join(",", el.Muscle.MuscleImages.Select(x => x.ImagePath)) : string.Empty,
+                    ImageUrl = el.Muscle.MuscleImages != null ? string.Join(",", el.Muscle.MuscleImages.Select(x => x.ImagePath.Replace("\\", "/"))) : string.Empty,
                 }).ToList(),
 
                 SelectedEquipments = exercise.ExerciseEquipments.Select(el => new EquipmentResponse
                 {
                     Id = el.EquipmentId,
                     Name = el.Equipment.Name,
-                    ImageUrl = el.Equipment.EquipmentImages != null ? string.Join(",", el.Equipment.EquipmentImages.Select(x => x.ImagePath)) : string.Empty,
+                    ImageUrl = el.Equipment.EquipmentImages != null ? string.Join(",", el.Equipment.EquipmentImages.Select(x => x.ImagePath.Replace("\\", "/"))) : string.Empty,
                 }).ToList(),
             };
         }
@@ -287,6 +289,8 @@ namespace TunzWorkout.Api.Mapping
             return new AuthenticationResponse
             {
                 Email = authenticationCommand.Email,
+                UserId = authenticationCommand.UserId,
+                Role = authenticationCommand.Role,
                 Token = authenticationCommand.Token,
                 Expiration = authenticationCommand.Expiration,
                 RefreshToken = authenticationCommand.RefreshToken,
@@ -488,7 +492,7 @@ namespace TunzWorkout.Api.Mapping
                     WorkoutId = id,
                     RoundExercises = r.RoundExerciseRequests.Select(re => new RoundExercise
                     {
-                        Id = re.Id,
+                        Id = re.Id ,
                         RoundId = re.RoundId,
                         ExerciseId = re.ExerciseId,
                         Reps = re.Reps,
@@ -505,18 +509,22 @@ namespace TunzWorkout.Api.Mapping
             {
                 Id = workout.Id,
                 Name = workout.Name,
-                LevelId = workout.LevelId,
-                GoalId = workout.GoalId,
+                LevelName = workout.Level.Name,
+                GoalName = workout.Goal.Name,
                 RoundResponses = workout.Rounds.Select(r => new RoundResponse
                 {
+                    Id = r.Id,
                     Name = r.Name,
                     Set = r.Set,
                     Rest = r.Rest,
                     Order = r.Order,
                     RoundExerciseResponses = r.RoundExercises.Select(re => new RoundExerciseResponse
                     {
+                        Id = re.Id,
                         RoundId = re.RoundId,
                         ExerciseId = re.ExerciseId,
+                        ExerciseName = re.Exercise.Name,
+                        VideoUrl = (re.Exercise.Videos != null) ? string.Join(",", re.Exercise.Videos.Select(x => x.VideoPath.Replace("\\", "/"))) : string.Empty,
                         Order = re.Order,
                         Reps = re.Reps,
                         Rest = re.Rest,
@@ -546,6 +554,41 @@ namespace TunzWorkout.Api.Mapping
                 Rest = request.Rest,
             };
         }
+        #endregion
+
+        #region Wishlist
+
+        public static Wishlist MapToWishlist(this CreateWishlistRequest request)
+        {
+            return new Wishlist
+            {
+                Id = Guid.NewGuid(),
+                UserId = request.UserId,
+                WorkoutId = request.WorkoutId,
+            };
+        }
+
+        public static WishlistResponse MapToResponse(this Wishlist wishlist)
+        {
+            return new WishlistResponse
+            {
+                Id = wishlist.Id,
+                WorkoutName = wishlist.Workout.Name,
+                GoalName = wishlist.Workout.Goal.Name,
+                LevelName = wishlist.Workout.Level.Name,
+                WorkoutId = wishlist.WorkoutId,
+            };
+        }
+
+        public static WishlistsResponse MapToResponse(this IEnumerable<Wishlist> wishlists)
+        {
+            return new WishlistsResponse
+            {
+                Wishlists = wishlists.Select(MapToResponse),
+            };
+        }
+
+
         #endregion
 
     }

@@ -8,6 +8,7 @@ namespace TunzWorkout.Application.Common.Interfaces
         Task DeleteByIdAsync(Guid id);
         Task<bool> UpdateAsync(Workout workout);
 
+        Task<bool> ExistByIdAsync(Guid id);
         Task<IEnumerable<Workout>> GetAllAsync();
         Task<Workout?> WorkoutByIdAsync(Guid id);
     }

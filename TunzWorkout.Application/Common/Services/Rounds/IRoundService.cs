@@ -8,6 +8,7 @@ namespace TunzWorkout.Application.Common.Services.Rounds
         Task<ErrorOr<Round>> CreateAsync(Round round);
         Task<ErrorOr<Round>> UpdateAsync(Round round);
         Task<ErrorOr<Deleted>> DeleteAsync(Guid id);
+        Task<ErrorOr<Deleted>> DeleteRoundExAsync(Guid id);
         Task<ErrorOr<Round?>> GetByIdAsync(Guid id);
         Task<ErrorOr<IEnumerable<Round>>> GetAllAsync();
     }

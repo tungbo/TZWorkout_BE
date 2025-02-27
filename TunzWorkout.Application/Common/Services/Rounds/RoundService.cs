@@ -46,6 +46,13 @@ namespace TunzWorkout.Application.Common.Services.Rounds
             throw new NotImplementedException();
         }
 
+        public async Task<ErrorOr<Deleted>> DeleteRoundExAsync(Guid id)
+        {
+            await _roundExerciseRepository.DeleteRoundExAsync(id);
+            await _unitOfWork.CommitChangesAsync();
+            return Result.Deleted;
+        }
+
         public Task<ErrorOr<IEnumerable<Round>>> GetAllAsync()
         {
             throw new NotImplementedException();

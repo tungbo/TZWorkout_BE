@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TunzWorkout.Api.Mapping;
 using TunzWorkout.Api.Models.Dtos.Workouts;
+using TunzWorkout.Application.Common.Services.Rounds;
 using TunzWorkout.Application.Common.Services.Workouts;
 
 namespace TunzWorkout.Api.Controllers
@@ -9,9 +10,11 @@ namespace TunzWorkout.Api.Controllers
     public class WorkoutController : ApiController
     {
         private readonly IWorkoutService _workoutService;
-        public WorkoutController(IWorkoutService workoutService)
+        private readonly IRoundService _roundService;
+        public WorkoutController(IWorkoutService workoutService, IRoundService roundService)
         {
             _workoutService = workoutService;
+            _roundService = roundService;
         }
 
         [HttpPost]
@@ -47,6 +50,12 @@ namespace TunzWorkout.Api.Controllers
         public async Task<IActionResult> DeleteWorkoutAsync(Guid id)
         {
             var result = await _workoutService.DeleteAsync(id);
+            return result.Match(_ => NoContent(), Problem);
+        }
+        [HttpDelete("roundExercise/{id:guid}")]
+        public async Task<IActionResult> DeleteRoundExAsync(Guid id)
+        {
+            var result = await _roundService.DeleteRoundExAsync(id);
             return result.Match(_ => NoContent(), Problem);
         }
     }

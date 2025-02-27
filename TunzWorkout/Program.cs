@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TunzWorkout.Domain.Enums;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -44,14 +45,38 @@ builder.Services.Configure<IISServerOptions>(options =>
 {
     options.MaxRequestBodySize = 104857600;
 });
+
+//CORS
+builder.Services.AddCors(options => {
+    options.AddDefaultPolicy(policybuilder => {
+        policybuilder
+        .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
+        .WithHeaders("Authorization", "Content-Type", "origin", "accept")
+        .WithMethods("GET", "POST", "PUT", "DELETE");
+    });
+});
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
+
+var uploadsPath = Path.Combine(
+    Directory.GetParent(Directory.GetCurrentDirectory())!.FullName,
+    "TunzWorkout.Infrastructure", 
+    "Uploads"
+);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads" // URL public
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -4,6 +4,7 @@ namespace TunzWorkout.Api.Models.Dtos.Rounds
 {
     public class RoundResponse
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public int Set { get; set; }
         public int Rest { get; set; }

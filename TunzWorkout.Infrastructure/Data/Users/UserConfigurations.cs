@@ -16,6 +16,8 @@ namespace TunzWorkout.Infrastructure.Data.Users
 
             builder.HasOne(x => x.FitnessProfile)
                 .WithOne(fp => fp.User).HasForeignKey<FitnessProfile>(x => x.UserId);
+            builder.HasMany(x => x.Wishlists)
+                .WithOne(w => w.User).HasForeignKey(x => x.UserId);
         }
     }
 }

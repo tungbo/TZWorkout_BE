@@ -366,6 +366,27 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.ToTable("Videos");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Wishlists.Wishlist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WorkoutId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("WorkoutId");
+
+                    b.ToTable("Wishlists");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
                 {
                     b.Property<Guid>("Id")
@@ -541,6 +562,25 @@ namespace TunzWorkout.Infrastructure.Migrations
                     b.Navigation("Exercise");
                 });
 
+            modelBuilder.Entity("TunzWorkout.Domain.Entities.Wishlists.Wishlist", b =>
+                {
+                    b.HasOne("TunzWorkout.Domain.Entities.Users.User", "User")
+                        .WithMany("Wishlists")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TunzWorkout.Domain.Entities.Workouts.Workout", "Workout")
+                        .WithMany("Wishlists")
+                        .HasForeignKey("WorkoutId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("Workout");
+                });
+
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
                 {
                     b.HasOne("TunzWorkout.Domain.Entities.Goals.Goal", "Goal")
@@ -615,11 +655,15 @@ namespace TunzWorkout.Infrastructure.Migrations
                 {
                     b.Navigation("FitnessProfile")
                         .IsRequired();
+
+                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("TunzWorkout.Domain.Entities.Workouts.Workout", b =>
                 {
                     b.Navigation("Rounds");
+
+                    b.Navigation("Wishlists");
                 });
 #pragma warning restore 612, 618
         }

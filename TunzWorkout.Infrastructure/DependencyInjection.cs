@@ -20,6 +20,7 @@ namespace TunzWorkout.Infrastructure
                 options.UseSqlServer(connectionString);
             });
 
+            services.AddScoped<IWishlistRepository, WishlistRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserGoalRepository, UserGoalRepository>();
             services.AddScoped<IMuscleRepository, MuscleRepository>();

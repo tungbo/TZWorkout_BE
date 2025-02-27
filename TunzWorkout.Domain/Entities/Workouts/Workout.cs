@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using TunzWorkout.Domain.Entities.Goals;
 using TunzWorkout.Domain.Entities.Levels;
 using TunzWorkout.Domain.Entities.Rounds;
+using TunzWorkout.Domain.Entities.Wishlists;
 
 namespace TunzWorkout.Domain.Entities.Workouts
 {
@@ -19,6 +20,7 @@ namespace TunzWorkout.Domain.Entities.Workouts
 
 
         public ICollection<Round> Rounds { get; set; } = new List<Round>();
+        public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 
 
 

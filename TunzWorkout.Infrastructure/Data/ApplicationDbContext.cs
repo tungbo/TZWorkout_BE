@@ -15,6 +15,7 @@ using TunzWorkout.Domain.Entities.Rounds;
 using TunzWorkout.Domain.Entities.UserGoals;
 using TunzWorkout.Domain.Entities.Users;
 using TunzWorkout.Domain.Entities.Videos;
+using TunzWorkout.Domain.Entities.Wishlists;
 using TunzWorkout.Domain.Entities.Workouts;
 using TunzWorkout.Infrastructure.Data.ExerciseEquipments;
 using TunzWorkout.Infrastructure.Data.ExerciseMuscles;
@@ -24,6 +25,7 @@ namespace TunzWorkout.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext, IUnitOfWork
     {
+        public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<FitnessProfile> FitnessProfiles { get; set; }
         public DbSet<Goal> Goals { get; set; }

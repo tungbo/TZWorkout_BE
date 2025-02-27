@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ErrorOr;
+using Microsoft.EntityFrameworkCore;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Domain.Entities.RoundExercises;
 using TunzWorkout.Infrastructure.Data;
@@ -46,6 +47,11 @@ namespace TunzWorkout.Infrastructure.Repository
         {
             _dbContext.RoundExercises.Update(roundExercise);
             return await Task.FromResult(true);
+        }
+
+        public async Task DeleteRoundExAsync(Guid id)
+        {
+            await _dbContext.RoundExercises.Where(x => x.Id == id).ExecuteDeleteAsync();
         }
     }
 }

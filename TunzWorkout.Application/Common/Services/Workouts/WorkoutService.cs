@@ -2,6 +2,7 @@
 using FluentValidation;
 using TunzWorkout.Application.Common.Interfaces;
 using TunzWorkout.Application.Common.Services.Rounds;
+using TunzWorkout.Domain.Entities.Exercises;
 using TunzWorkout.Domain.Entities.Rounds;
 using TunzWorkout.Domain.Entities.Workouts;
 
@@ -45,7 +46,9 @@ namespace TunzWorkout.Application.Common.Services.Workouts
             }
             await _workoutRepository.CreateAsync(workout);
             await _unitOfWork.CommitChangesAsync();
-            return workout;
+
+            var createdWorkout = await _workoutRepository.WorkoutByIdAsync(workout.Id);
+            return createdWorkout;
         }
 
         public async Task<ErrorOr<Deleted>> DeleteAsync(Guid id)
@@ -121,7 +124,8 @@ namespace TunzWorkout.Application.Common.Services.Workouts
             }
             await _workoutRepository.UpdateAsync(workout);
             await _unitOfWork.CommitChangesAsync();
-            return workout;
+            var updatedWorkout = await _workoutRepository.WorkoutByIdAsync(workout.Id);
+            return updatedWorkout;
         }
     }
 }

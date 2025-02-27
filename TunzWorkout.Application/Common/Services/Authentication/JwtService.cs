@@ -49,7 +49,9 @@ namespace TunzWorkout.Application.Common.Services.Authentication
             return new AuthenticationCommand
             {
                 Token = token,
+                UserId = user.Id,
                 Email = user.Email,
+                Role = user.Role.ToString(),
                 Expiration = expiration,
                 RefreshToken = GenerateRefreshToken(),
                 RefreshTokenExpiry = expiration.AddMinutes(Convert.ToDouble(_configuration["RefreshToken:REFRESH_EXPIRATION_IN_MINUTES"]))

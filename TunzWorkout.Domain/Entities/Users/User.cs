@@ -1,4 +1,5 @@
 ﻿using TunzWorkout.Domain.Entities.FitnessProfiles;
+using TunzWorkout.Domain.Entities.Wishlists;
 using TunzWorkout.Domain.Enums;
 
 namespace TunzWorkout.Domain.Entities.Users
@@ -19,6 +20,7 @@ namespace TunzWorkout.Domain.Entities.Users
         public bool IsDeleted { get; set; }
 
         public FitnessProfile FitnessProfile { get; set; }
+        public ICollection<Wishlist> Wishlists { get; set; }
 
     }
 }
